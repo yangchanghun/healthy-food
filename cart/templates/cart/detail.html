@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-3">
+    <h2>장바구니</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>상품명</th>
+                <th>가격</th>
+                <th>수량</th>
+                <th>합계</th>
+                <th>조정</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.price }}원</td>
+                <td>
+                    {{ item.quantity }}
+                </td>
+
+                {% comment %} <td>
+                    <!-- 수량 조정 폼 -->
+                    <form method="post" action="{% url 'cart:update' item.product.id %}">
+                        {% csrf_token %}
+                        {{ item.quantity_form.quantity }}
+                        {{ item.quantity_form.is_update }}
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">수정</button>
+                    </form>
+                </td> {% endcomment %}
+                <td>{{ item.total_price }}원</td>
+                <td>
+                    <!-- 항목 삭제 버튼 -->
+                    <a href="{% url 'cart:product_remove' item.product.id %}" class="btn btn-sm btn-outline-danger">삭제</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">장바구니가 비어있습니다.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="text-right">
+        <h4>총합계: {{cart.get_product_total}}원</h4>
+        <a href="{% url 'orders:menu_list' %}" onclick="window.close();" class="btn btn-primary">쇼핑 계속하기</a>
+        
+        <form method="post" action="{% url 'orders:create_order' %}">
+            {% csrf_token %}
+            <!-- 필요한 경우 여기에 추가적인 입력 필드를 포함할 수 있습니다. -->
+            <button type="submit" class="btn btn-success">결제하기</button>
+        </form>
+        {% comment %} <a href="{% url 'orders:menu_list' %}" class="btn btn-primary">쇼핑 계속하기</a> {% endcomment %}
+    </div>
+</div>
+{% endblock %}
