@@ -2,7 +2,7 @@ from decimal import Decimal
 from urllib import request
 from django.conf import settings
 
-from seller.models import Product
+from product.models import Product
 
 class Cart(object):
     def __init__(self, request) -> None:
