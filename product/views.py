@@ -12,7 +12,7 @@ from django.shortcuts import get_object_or_404
 Returns:
     _type_: _description_
 """
-@login_required
+# @login_required
 def seller_index(request):
     product = Product.objects.all().filter(user__id = request.user.id)
     context = {
@@ -84,15 +84,23 @@ class ProductListView(ListView):
         category_id = self.kwargs.get('category_id')
         if category_id:
             category = get_object_or_404(Category, id=category_id)
-            return Product.objects.filter(category=category)
-        return Product.objects.all()
+            return Product.objects.filter(category=category).prefetch_related('images')
+        return Product.objects.all().prefetch_related('images')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
         context['current_category_id'] = int(self.kwargs.get('category_id', '0'))
-        return context
 
+        # 각 제품에 대한 기본 이미지 URL을 추가
+        product_images = {}
+        for product in context['products']:
+            product_images[product.id] = product.images.first().image_url if product.images.exists() else None
+        context['product_images'] = product_images
+
+        return context
+    
+    
 def product_detail(request, pk):
     object = Product.objects.get(pk=pk)
     context = {
