@@ -12,7 +12,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    price = models.DecimalField(max_digits=6, decimal_places=2)
+    price = models.IntegerField()
     stock = models.IntegerField()
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
     specific = models.CharField(max_length=100)
