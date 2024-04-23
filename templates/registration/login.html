@@ -5,11 +5,17 @@
 {% block title %}Post All{% endblock %}
 
 {% load widget_tweaks %}
+<style>
+  .title-img {
+    width : 100px;
+    height : auto;
+  }
+</style>
 
 {%block content%}
-
-<h1>Please Login</h1>
-<p>Please enter your id and password</p>
+<div class="title-img"><img src="{% static 'Healthy-logo.png' %}"></div>
+<h1>로그인 하기</h1>
+<p>아이디와 비밀번호를 입력해주세요.</p>
 
 {% if form.error %}
 <div class="alert alert-danger">
@@ -17,7 +23,8 @@
     {{form.errors}}
 </div>
 {% endif %}
-<form action="." method="post" class="card pt-3">{% csrf_token %}
+<form action="." method="post" class="card pt-3">
+  {% csrf_token %}
 
     <div class="form-group row">
         {{ form.username|add_label_class:"col-form-label col-sm-2 ml-3 font-weight-bold" }}
