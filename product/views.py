@@ -20,25 +20,48 @@ def seller_index(request):
     }
     return render(request, 'product/seller_index.html', context)
 
-@login_required
+# @login_required
 def add_product(request):
     if request.method == "POST":
-        
         user = request.user
         product_name = request.POST.get('productname')
         product_price = request.POST['price']
         description = request.POST.get('description')
+        specific = request.POST.get('specific')
+        category_id = request.POST.get('category')  # 카테고리 ID 추가
+        stock = request.POST.get('stock')  # 재고 추가
         
-        
-        fs=FileSystemStorage()
-        uploaded_file = request.FILES['file']
-        name = fs.save(uploaded_file.name, uploaded_file)
-        url = fs.url(name)
+        # 카테고리 객체 가져오기
+        try:
+            category = Category.objects.get(id=category_id)
+        except Category.DoesNotExist:
+            # 적절한 에러 처리 또는 기본 카테고리 설정
+            return render(request, 'error_page.html', {'error': 'Category does not exist'})
 
-        Product.objects.create(user=user, name=product_name, price =product_price , description=description,image_url=url)        
+        product = Product.objects.create(
+            seller=user,
+            name=product_name,
+            price=product_price,
+            description=description,
+            specific=specific,
+            category=category,  # 카테고리 설정
+            stock=stock  # 재고 설정
+        )
+        
+        # 파일이 여러 개일 경우 request.FILES.getlist를 사용
+        if 'files' in request.FILES:
+            fs = FileSystemStorage()
+            for uploaded_file in request.FILES.getlist('files'):
+                name = fs.save(uploaded_file.name, uploaded_file)
+                url = fs.url(name)
+                ProductImage.objects.create(product=product, image_url=url)
+
         return redirect('product:add_product')  # 데이터 저장 후 페이지 재로드
-    
-    return render(request, 'product/add_product.html')
+
+    # GET 요청 처리
+    categories = Category.objects.all()  # 카테고리 목록을 템플릿에 전달
+    return render(request, 'product/add_product.html', {'categories': categories})
+
 
 def product_delete(request, pk):
     object = Product.objects.get(pk=pk)
