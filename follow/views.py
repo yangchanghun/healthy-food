@@ -33,14 +33,3 @@ def is_seller(request):
     else:
         return HttpResponseRedirect(reverse('follow:index'))
 
-
-
-# 판매자 그룹에 사용자 추가
-def add_seller(request):
-    # 현재 사용자와 판매자 그룹 선택
-    user= User.objects.get(username=request.user)
-    group = Group.objects.get(name='Sellers')
-
-    # 사용자를 그룹에 추가합니다.
-    group.user_set.add(user)
-    group.save()

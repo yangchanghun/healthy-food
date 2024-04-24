@@ -4,7 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 from django.views.generic import ListView
 from django.shortcuts import get_object_or_404
-# Create your views here.
+
+from cart.forms import AddProductForm
 
 """login_required -> 판매자 인증기능 필요, 개발 후 수정(판매자일 경우에 접근 가능)
 판매자 관점의 함수
@@ -12,7 +13,7 @@ from django.shortcuts import get_object_or_404
 Returns:
     _type_: _description_
 """
-# @login_required
+@login_required
 def seller_index(request):
     product = Product.objects.all().filter(user__id = request.user.id)
     context = {
@@ -20,7 +21,7 @@ def seller_index(request):
     }
     return render(request, 'product/seller_index.html', context)
 
-# @login_required
+@login_required
 def add_product(request):
     if request.method == "POST":
         user = request.user
@@ -103,8 +104,11 @@ class ProductListView(ListView):
     
 def product_detail(request, pk):
     object = Product.objects.get(pk=pk)
+    add_to_cart = AddProductForm(initial={'quantity': 1})
+    
     context = {
-        'object':object
+        'object':object,
+        'add_to_cart': add_to_cart
     }
-    return render(request, 'product/product_detail.html', context)
+    return render(request, 'product/product_detail.html', context,)
 
