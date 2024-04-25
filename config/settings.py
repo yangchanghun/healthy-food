@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'orders',
     'product',
     'sales',
+    'userprofile',
     'widget_tweaks',
 ]
 
