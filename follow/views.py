@@ -1,15 +1,24 @@
+from typing import Any
+from django.db.models.query import QuerySet
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseRedirect, HttpResponse
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 from .models import Follow
 from django.contrib.auth.models import User, Group
+from django.views import generic
+from product.models import Product
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 def index(request):
     User = get_user_model()
     users = User.objects.all()
     return render(request, 'follow/index.html', {'users': users})
+
+class UserDV(generic.DetailView):
+    model = User
+    template_name = 'follow/user_detail.html'
 
 @login_required
 def following(request):
@@ -25,11 +34,34 @@ def following(request):
         return HttpResponseRedirect(reverse('follow:index'))
     
 
-def is_seller(request):
-    # 현재 사용자가 Sellers 그룹에 속해 있는지 확인
-    if request.user.groups.filter(name='Sellers').exists():
-        # 속해 있다면 seller_page.html로 이동
-        return render(request, 'follow/seller_page.html')
-    else:
-        return HttpResponseRedirect(reverse('follow:index'))
+# def is_seller(request):
+#     # 현재 사용자가 Sellers 그룹에 속해 있는지 확인
+#     if request.user.groups.filter(name='Sellers').exists():
+#         # 속해 있다면 seller_page.html로 이동
+#         return render(request, 'follow/seller_page.html')
+#     else:
+#         return HttpResponseRedirect(reverse('follow:index'))
 
+class SellerProductLV(LoginRequiredMixin, generic.ListView):
+    model = Product
+    template_name = 'follow/seller_page.html'
+    context_object_name = 'products'
+    login_url = reverse_lazy('follow:index')
+
+    # def get_queryset(self):
+    #     return Product.objects.filter(seller=self.request.user).prefetch_related('images')
+    
+    def get_queryset(self):
+        # 현재 사용자가 Sellers 그룹에 속해 있는지 확인
+        if not self.request.user.groups.filter(name='Sellers').exists():
+            return Product.objects.none()  # Sellers 그룹에 속하지 않은 경우 빈 쿼리셋 반환
+        return Product.objects.filter(seller=self.request.user).prefetch_related('images')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        product_images = {}
+        for product in context['products']:
+            product_images[product.id] = product.images.first().image_url if product.images.exists() else None
+        context['product_images'] = product_images
+
+        return context
