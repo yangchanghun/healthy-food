@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block content %}
+    <style>
+        .product-card {
+            transition: transform .2s; /* 애니메이션 효과 */
+            cursor: pointer;
+        }
+        .product-card:hover {
+            transform: scale(1.05); /* 마우스 오버시 카드 확대 */
+            box-shadow: 0 4px 8px rgba(0,0,0,.1); /* 그림자 효과 */
+        }
+        .product-image {
+            height: 200px; /* 이미지 높이 고정 */
+            object-fit: cover; /* 이미지 비율 유지 */
+        }
+        .card-body {
+            height: 180px; /* 카드 바디 높이 고정 */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* 내용물 간격 조정 */
+        }
+        .card-text {
+            font-size: 14px; /* 폰트 크기 조정 */
+        }
+        .product-price {
+            font-weight: bold; /* 가격 굵게 */
+        }
+    </style>
+    
+    <div class="container mt-5">
+        <!-- 카테고리 목록 -->
+        <div class="mb-3">
+            <a href="{% url 'product:product_list' %}" class="btn btn-primary">전체</a>
+            {% for category in categories %}
+                <a href="{% url 'product:product_by_category' category.id %}" class="btn {% if category.id == current_category_id %}btn-success{% else %}btn-secondary{% endif %}">
+                    {{ category.name }}
+                </a>
+            {% endfor %}
+        </div>
+
+        <!-- 제품 목록 -->
+        <div class="row">
+            {% for product in products %}
+                <div class="col-md-4 mb-4">
+                    <div class="card product-card">
+                        <a href="{% url 'product:product_detail' product.id %}" class="text-dark text-decoration-none">
+                            {% if product_images|get:product.id %}
+                                <img src="{{ product_images|get:product.id }}" class="card-img-top product-image" alt="{{ product.name }} 이미지">
+                            {% else %}
+                                <!-- 기본 이미지 또는 "이미지 없음" 표시 -->
+                                <img src="https://placehold.co/300x200" class="card-img-top product-image" alt="기본 이미지">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ product.name }}</h5>
+                                <p class="card-text">{{ product.description|truncatewords:20 }}</p> <!-- 설명이 길 경우 단어 수 제한 -->
+                                <p class="card-text product-price">가격: {{ product.price }}원</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <p>표시할 제품이 없습니다.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock %}
