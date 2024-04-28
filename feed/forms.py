@@ -5,21 +5,13 @@ from django.forms import inlineformset_factory
 class ContentForm(forms.ModelForm):
     class Meta:
         model = Content
-        fields = ['title', 'body_text', 'content_type']
+        fields = ['title', 'body_text']
 
     def clean(self):
         cleaned_data = super().clean()
         return cleaned_data
 
-class FeedImageForm(forms.ModelForm):
-    class Meta:
-        model = FeedImage
-        fields = ['image']
 
-# Content 객체와 연결된 FeedImage 객체들을 처리할 수 있는 FormSet 생성
-# extra -> 처리할 수 있는 이미지 필드 개수(동적으로 javascript로 업데이트 해야함)
-FeedImageFormSet = inlineformset_factory(Content, FeedImage, form=FeedImageForm, extra=5, can_delete=True)
-    
 
 class ReviewContentForm(ContentForm):
     class Meta(ContentForm.Meta):

@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from userprofile.models import UserProfile
 from django.views.generic import ListView, CreateView
 from .models import *
-from .forms import ContentForm, ReviewContentForm, FeedImageFormSet
+from .forms import ContentForm, ReviewContentForm
 from django.urls import reverse_lazy
 
 class ContentListView(ListView):
@@ -17,29 +17,33 @@ class ContentListView(ListView):
 class ContentCreateView(CreateView):
     model = Content
     form_class = ContentForm
-    template_name = 'feed/post_create.html' 
+    template_name = 'feed/post_create.html'
     success_url = reverse_lazy('feed:post-create')  # 생성 성공 후 리다이렉트
-
+    
     def get_context_data(self, **kwargs):
-        data = super(ContentCreateView, self).get_context_data(**kwargs)
-        if self.request.POST:
-            data['images'] = FeedImageFormSet(self.request.POST, self.request.FILES)  # 파일 데이터 추가
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
         else:
-            data['images'] = FeedImageFormSet()
-        return data
+            return self.form_invalid(form)
 
     def form_valid(self, form):
-        context = self.get_context_data()
-        images = context['images']
-        form.instance.user = self.request.user
-        form.instance.content_type = 'post'
-        self.object = form.save()
-        
-        if images.is_valid():
-            images.instance = self.object
-            images.save()
+        # 폼 데이터 저장 전 미리 인스턴스를 만들지만, DB에는 아직 저장하지 않음
+        self.object = form.save(commit=False)
+        self.object.user = self.request.user  
+        self.object.content_type = 'post'  
+        self.object.save()  # DB에 저장
 
-        return super(ContentCreateView, self).form_valid(form)
+        # 이미지 처리
+        images = self.request.FILES.getlist('images')  # 'images'는 템플릿에서 input 태그의 name 속성값
+        for image in images:
+            FeedImage.objects.create(content=self.object, image=image)  # 각 이미지에 대해 FeedImage 인스턴스 생성 및 저장
+        
+        return super().form_valid(form)
     
 # 구매기록에서 라우팅
 class ReviewCreateView(CreateView):
