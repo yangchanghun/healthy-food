@@ -30,7 +30,6 @@ def add_product(request):
         description = request.POST.get('description')
         specific = request.POST.get('specific')
         category_id = request.POST.get('category')  # 카테고리 ID 추가
-        stock = request.POST.get('stock')  # 재고 추가
         
         # 카테고리 객체 가져오기
         try:
@@ -46,7 +45,6 @@ def add_product(request):
             description=description,
             specific=specific,
             category=category,  # 카테고리 설정
-            stock=stock  # 재고 설정
         )
         
         # 파일이 여러 개일 경우 request.FILES.getlist를 사용
