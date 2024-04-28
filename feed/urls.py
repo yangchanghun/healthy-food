@@ -4,5 +4,8 @@ from . import views
 
 app_name='feed'
 urlpatterns = [
-
-]
+    path('', views.ContentListView.as_view(), name='index'),
+    path('create/post/', views.ContentCreateView.as_view(), name='post-create'),
+    path('create/review/', views.ReviewCreateView.as_view(), name='review-create'),
+    path('post/<int:pk>/', views.post_detail, name='post_detail'),
+    ]
