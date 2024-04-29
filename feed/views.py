@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Content, FeedImage
 from django.contrib.auth.models import User
-from userprofile.models import UserProfile
+from userprofile.models import Profile
 from django.views.generic import ListView, CreateView
 from .models import *
 from .forms import ContentForm, ReviewContentForm

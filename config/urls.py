@@ -19,9 +19,6 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 from . import views
-from .views import UserCreateView, UserCreateDoneTV
-from .views import check_duplicate
-
 
 
 urlpatterns = [
@@ -29,9 +26,9 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('login/', views.login, name='login'),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('accounts/register/', UserCreateView.as_view(), name='register'),
-    path('accounts/register/done/', UserCreateDoneTV.as_view(), name='register_done'),
-    path('check_duplicate/', check_duplicate, name='check_duplicate'),
+    path('accounts/register/', views.register_user, name='register'),
+    path('accounts/register/done/', views.UserCreateDoneTV.as_view(), name='register_done'),
+    path('check_duplicate/', views.check_duplicate, name='check_duplicate'),
     
     path('user/', include('follow.urls')),
     path('product/', include('product.urls')),
