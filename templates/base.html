@@ -51,7 +51,7 @@
           <li><a class="navbar-brand" href="{% url 'index' %}"><img src='{% static 'Healthy-logo.png' %}'></a></li>
           <li><a href="{% url 'index' %}" class="nav-link px-2">Home</a></li>
           <li><a href="{% url 'product:product_list' %}" class="nav-link px-2">Products</a></li>
-          <li><a href="#" class="nav-link px-2">Farm Story</a></li>
+          <li><a href="{% url 'feed:index' %}" class="nav-link px-2">Farm Story</a></li>
           <li><a href="#" class="nav-link px-2">Customer</a></li>
           <li><a href="#" class="nav-link px-2">About</a></li>
           <li class="nav-item">

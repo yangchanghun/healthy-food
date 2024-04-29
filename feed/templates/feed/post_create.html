@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    #root {
+        width: 100%;
+        margin: 0 auto;
+        max-width: 800px;
+      }
+      
+      .title {
+        text-align: center;
+      }
+      
+      .contents {
+        display: flex;
+        flex-direction: row;
+        margin-top: 30px;
+      }
+      .contents .upload-box {
+        width: 100%;
+        margin-right: 30px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      
+      .contents .upload-box .drag-file {
+        position: relative;
+        width: 100%;
+        height: 360px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border: 3px dashed #dbdbdb;
+      }
+      .contents .upload-box .drag-file.highlight {
+        border: 3px dashed red;
+      }
+      .contents .upload-box .drag-file .image {
+        width: 40px;
+      }
+      .contents .upload-box .drag-file .message {
+        margin-bottom: 0;
+      }
+      .contents .upload-box .drag-file .preview {
+        display: none;
+        position: absolute;
+        left: 0;
+        height: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .contents .upload-box .file-label {
+        margin-top: 30px;
+        background-color: #5b975b;
+        color: #fff;
+        text-align: center;
+        padding: 10px 0;
+        width: 65%;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .contents .upload-box .file {
+        display: none;
+      }
+      
+      @media (max-width: 700px) {
+        .contents {
+          display: flex;
+          flex-direction: column;
+          margin-top: 30px;
+        }
+        .contents .upload-box {
+          width: 100%;
+          box-sizing: border-box;
+          margin-right: 0;
+        }
+        .contents .upload-box .drag-file {
+          height: 150px;
+        }
+        .contents .files {
+          width: 100%;
+          box-sizing: border-box;
+          margin-right: 0;
+          overflow: initial;
+        }
+      }
+      .drag-file:hover,
+    .drag-file:focus {
+      border-color: #4a90e2; /* 드래그 영역에 마우스를 올렸을 때의 경계선 색상 변경 */
+      background-color: #f6f8fa; /* 드래그 영역의 배경색 변경 */
+    }
+    .drag-file .message {
+      color: #4a90e2; /* 메시지 색상 변경 */
+    }
+    .preview {
+      max-width: 100%; /* 미리보기 이미지의 최대 너비 설정 */
+      max-height: 320px; /* 미리보기 이미지의 최대 높이 설정 */
+    }
+</style>
+
+
+<div id="root">
+    <h2 class="title">게시글 작성</h2>
+    <hr>
+    <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label class="file-label" for="chooseFile">
+    <div class="contents">
+      <div class="upload-box">
+        <div id="drop-file" class="drag-file">
+          <img src="https://img.icons8.com/pastel-glyph/2x/image-file.png" alt="파일 아이콘" class="image">
+          <p class="message">여기에 파일을 드래그하거나 클릭하여 업로드하세요</p>
+          <img src="" alt="미리보기 이미지" class="preview">
+        </div>
+        <input class="file" name="images" multiple id="chooseFile" type="file" onchange="dropFile.handleFiles(this.files)" accept="image/png, image/jpeg, image/gif">
+    </div>
+    </label>
+    </div>
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">저장</button>
+    </form>
+</div>
+
+
+  <script>
+    function DropFile(dropAreaId, fileListId) {
+        let dropArea = document.getElementById(dropAreaId);
+        let fileList = document.getElementById(fileListId);
+      
+        function preventDefaults(e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      
+        function highlight(e) {
+          preventDefaults(e);
+          dropArea.classList.add("highlight");
+        }
+      
+        function unhighlight(e) {
+          preventDefaults(e);
+          dropArea.classList.remove("highlight");
+        }
+      
+        function handleDrop(e) {
+          unhighlight(e);
+          let dt = e.dataTransfer;
+          let files = dt.files;
+      
+          handleFiles(files);
+      
+          const fileList = document.getElementById(fileListId);
+          if (fileList) {
+            fileList.scrollTo({ top: fileList.scrollHeight });
+          }
+        }
+      
+        function handleFiles(files) {
+          files = [...files];
+          // files.forEach(uploadFile);
+          files.forEach(previewFile);
+        }
+      
+        function previewFile(file) {
+          console.log(file);
+          renderFile(file);
+        }
+      
+        function renderFile(file) {
+          let reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onloadend = function () {
+            let img = dropArea.getElementsByClassName("preview")[0];
+            img.src = reader.result;
+            img.style.display = "block";
+          };
+        }
+      
+        dropArea.addEventListener("dragenter", highlight, false);
+        dropArea.addEventListener("dragover", highlight, false);
+        dropArea.addEventListener("dragleave", unhighlight, false);
+        dropArea.addEventListener("drop", handleDrop, false);
+      
+        return {
+          handleFiles
+        };
+      }
+      
+      const dropFile = new DropFile("drop-file", "files");
+  </script>
+{% endblock %}
