@@ -1,54 +1,120 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
 
-{% block title %}register.html{% endblock %}
+{% block title %}회원가입{% endblock %} 
+
+{% block extra-style %}
+<style>
+  .container {
+    width : 100%;
+  }
+  .container h1{
+    text-align : center;
+    margin : 50px 0;
+  }
+  .regist {
+    margin-bottom : 20px;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
 
-    <h1>New User Registration</h1>
-    <p class="font-italic">Please enter your username and password twice.</p>
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h1> 회원가입 </h1>
 
-    {% if form.errors %}
-    <div class="alert alert-danger">
-        <div class="font-weight-bold">Wrong! Please correct the error(s) below.</div>
-        {{ form.errors }}
+        <!-- 프로필 이미지 업로드 필드 -->
+        <div class="mb-3">
+          <label for="{{ form.user_image.id_for_label }}" class="form-label">프로필 이미지</label>
+          {% render_field form.user_image class="form-control" %}
+        </div>
+
+        <!-- 유저네임 필드 -->
+        <div class="mb-3">
+          <label for="{{ form.username.id_for_label }}" class="form-label">유저네임</label>
+          {% render_field form.username class="form-control" %}
+        </div>
+
+        <!-- 비밀번호 필드 -->
+        <div class="mb-3">
+          <label for="{{ form.password1.id_for_label }}" class="form-label">비밀번호</label>
+          {% render_field form.password1 class="form-control" %}
+        </div>
+
+        <!-- 비밀번호 확인 필드 -->
+        <div class="mb-3">
+          <label for="{{ form.password2.id_for_label }}" class="form-label">비밀번호 확인</label>
+          {% render_field form.password2 class="form-control" %}
+        </div>
+
+        <!-- 닉네임 필드 -->
+        <div class="mb-3">
+          <label for="{{ form.nickname.id_for_label }}" class="form-label">닉네임</label>
+          {% render_field form.nickname class="form-control" %}
+          <button type="button" class="btn btn-primary mt-2" onclick="checkDuplicate('nickname')">중복 확인</button>
+          <small id="nickname-feedback" class="form-text text-muted"></small>
+        </div>
+
+
+        <!-- 이메일 필드 -->
+        <div class="mb-3">
+          <label for="{{ form.email.id_for_label }}" class="form-label">이메일</label>
+          {% render_field form.email class="form-control" %}
+          <button type="button" class="btn btn-primary mt-2" onclick="checkDuplicate('email')">중복 확인</button>
+          <small id="email-feedback" class="form-text text-muted"></small>
+        </div>
+
+        <!-- 전화번호 필드 -->
+        <div class="mb-3">
+          <label for="{{ form.phone_number.id_for_label }}" class="form-label">전화번호</label>
+          {% render_field form.phone_number class="form-control" %}
+        </div>
+
+        <!-- 주소 필드 -->
+        <div class="mb-3">
+          <label for="{{ form.address.id_for_label }}" class="form-label">주소</label>
+          {% render_field form.address class="form-control" %}
+        </div>
+
+        <!-- 상세주소 필드 -->
+        <div class="mb-3">
+          <label for="{{ form.detailed_address.id_for_label }}" class="form-label">상세주소</label>
+          {% render_field form.detailed_address class="form-control" %}
+        </div>
+
+        <!-- 판매자 여부 체크박스 -->
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="{{ form.is_seller.id_for_label }}" name="{{ form.is_seller.html_name }}">
+          <label class="form-check-label" for="{{ form.is_seller.id_for_label }}">판매자 여부</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary regist">가입하기</button>
+      </form>
     </div>
-    {% endif %}
+  </div>
+</div>
 
-    <form action="." method="post" class="card pt-3">{% csrf_token %}
+<script>
+  function checkDuplicate(fieldType) {
+    const fieldName = (fieldType === 'email') ? 'email' : 'nickname';
+    const fieldValue = document.getElementById(`id_${fieldName}`).value;
 
-        <div class="form-group row">
-            {{ form.username|add_label_class:"col-form-label col-sm-3 ml-3 font-weight-bold" }}
-            <div class="col-sm-5">
-                {{ form.username|add_class:"form-control"|attr:"autofocus" }}
-            </div>
-        </div>
-        <div class="form-group row">
-            {{ form.password1|add_label_class:"col-form-label col-sm-3 ml-3 font-weight-bold" }}
-            <div class="col-sm-5">
-                {{ form.password1|add_class:"form-control" }}
-            </div>
-        </div>
-        <div class="form-group row">
-            {{ form.password2|add_label_class:"col-form-label col-sm-3 ml-3 font-weight-bold" }}
-            <div class="col-sm-5">
-                {{ form.password2|add_class:"form-control" }}
-            </div>
-        </div>
-            
-        <div class="form-group form-check">
-            {{ form.is_seller }}
-            <label class="form-check-label" for="{{ form.is_seller.id_for_label }}">
-                판매자입니다.
-            </label>
-        </div>
+    fetch(`/check_duplicate/?field_type=${fieldType}&field_value=${fieldValue}`)
+      .then(response => response.json())
+      .then(data => {
+        const feedbackId = `${fieldType}-feedback`;
+        const feedback = document.getElementById(feedbackId);
 
-        <div class="form-group">
-            <div class="offset-sm-3 col-sm-5">
-                <input type="submit" value="Register" class="btn btn-info"/>
-            </div>
-        </div>
-
-    </form>
-
+        if (data.is_taken) {
+          feedback.textContent = `${fieldValue}은(는) 이미 사용 중입니다.`;
+        } else {
+          feedback.textContent = `${fieldValue}은(는) 사용 가능합니다.`;
+        }
+      });
+  }
+</script>
 {% endblock %}

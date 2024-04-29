@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <h2>전체 포스트</h2>
+            <div class="list-group">
+                {% for post in posts %}
+                    <a href="{% url 'feed:post_detail' post.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ post.title }}</h5>
+                            <small>{{ post.created_at|date:"Y-m-d H:i" }}</small>
+                        </div>
+                        <p class="mb-1">{{ post.body_text|truncatewords:20 }}</p>
+                        <small>좋아요: {{ post.likes.count }}</small>
+                    </a>
+                {% empty %}
+                    <p>포스트가 없습니다.</p>
+                {% endfor %}
+            </div>
+            <div class="mt-3">
+                {% if posts.has_previous %}
+                    <a href="?page=1" class="btn btn-outline-primary">처음으로</a>
+                    <a href="?page={{ posts.previous_page_number }}" class="btn btn-outline-primary">&laquo; 이전</a>
+                {% endif %}
+                <span class="current">
+                    페이지 {{ posts.number }} / {{ posts.paginator.num_pages }}
+                </span>
+                {% if posts.has_next %}
+                    <a href="?page={{ posts.next_page_number }}" class="btn btn-outline-primary">다음 &raquo;</a>
+                    <a href="?page={{ posts.paginator.num_pages }}" class="btn btn-outline-primary">끝으로</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
