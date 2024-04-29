@@ -68,7 +68,10 @@
           <li class="nav-item dropdown">
               {% if user.is_active %}
                   <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      <i class="fas fa-user-circle"></i>&nbsp;{% firstof user.get_short_name user.get_username %}
+                    <svg class="bi me-2" width="40" height="32">
+                      <use xlink:href="{{ user.userprofile.user_image.url }}"/>
+                    </svg>  
+                    <i class="fas fa-user-circle"></i>&nbsp;{% firstof user.get_short_name user.get_username %}
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="navbarUserDropdown">
                       <form action="{% url 'logout' %}" method="post">

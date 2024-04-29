@@ -77,6 +77,16 @@
     .bd-mode-toggle .dropdown-menu .active .bi {
       display: block !important;
     }
+
+    .carousel-caption.banner1 {
+      position: relative; /* 부모 요소에 position: relative;를 설정하여 내부 요소의 위치를 조정할 수 있도록 합니다. */
+    }
+    
+    .carousel-caption.banner1 .btn {
+      position: absolute;
+      bottom: 20px; /* 아래에서 20px 만큼 떨어진 위치 */
+      right: 20px; /* 오른쪽에서 20px 만큼 떨어진 위치 */
+    }
   </style>
 
   <link href="{% static 'carousel.css' %}" rel="stylesheet">
@@ -93,19 +103,17 @@
   </div>
   <div class="carousel-inner">
     <div class="carousel-item active">
-      <svg class="bd-placeholder-img" width="100%" height="450px" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false"><rect width="100%" height="450px" fill="var(--bs-secondary-color)"/></svg>
+      <img src="{% static 'banner1.png' %}" class="d-block w-100" height="450px" alt="Image Caption">
       <div class="container">
-        <div class="carousel-caption text-start">
-          <h1>Example headline.</h1>
-          <p class="opacity-75">Some representative placeholder content for the first slide of the carousel.</p>
+        <div class="carousel-caption banner1">
           <p><a class="btn btn-lg btn-primary" href="#">Sign up today</a></p>
         </div>
       </div>
     </div>
     <div class="carousel-item">
-      <svg class="{% static 'banner.jpg' %}" width="100%" height="450px" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false"><rect width="100%" height="450px" fill="var(--bs-secondary-color)"/></svg>
+      <img src="{% static 'banner_2.png' %}" class="d-block w-100" height="450px" alt="Image Caption">      
       <div class="container">
-        <div class="carousel-caption">
+        <div class="carousel-caption text-start">
           <h1>Another example headline.</h1>
           <p>Some representative placeholder content for the second slide of the carousel.</p>
           <p><a class="btn btn-lg btn-primary" href="#">Learn more</a></p>
@@ -123,7 +131,7 @@
       </div>
     </div>
   </div>
-  <button class="carousel-control-prev" type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
+  <button class="carousel-control-prev m-auto" type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
     <span class="visually-hidden">Previous</span>
   </button>

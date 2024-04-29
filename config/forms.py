@@ -10,6 +10,12 @@ class CustomUserCreationForm(UserCreationForm):
     address = forms.CharField(max_length=100)
     detailed_address = forms.CharField(max_length=100)
     is_seller = forms.BooleanField(required=False)
+    
+    class Meta:
+        model = User
+        fields = ('username', 'user_image', 'password1', 'password2', 'nickname', 'email', 'phone_number', 'address', 'detailed_address', 'is_seller')
+
+
 
     # def save(self, commit=True):
     #     user = super(CustomUserCreationForm, self).save(commit=False)
@@ -23,8 +29,3 @@ class CustomUserCreationForm(UserCreationForm):
     #     if commit:
     #         user.save()
     #     return user
-    
-    class Meta:
-        model = User
-        fields = ('username', 'user_image', 'password1', 'password2', 'nickname', 'email', 'phone_number', 'address', 'detailed_address', 'is_seller')
-
