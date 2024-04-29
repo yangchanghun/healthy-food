@@ -20,6 +20,12 @@ class UserDV(generic.DetailView):
     model = User
     template_name = 'follow/user_detail.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # 사용자가 판매자 그룹에 속해있는지 확인
+        context['is_seller'] = self.request.user.groups.filter(name='Sellers').exists()
+        return context
+
 @login_required
 def following(request):
     if request.method == 'POST':

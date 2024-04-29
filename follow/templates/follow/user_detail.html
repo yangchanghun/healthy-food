@@ -7,7 +7,7 @@
   <div class="mb-3 hstack gap-5">
     <h2 class="">일반 계정</h2>
 
-    {% if user.id == request.user.id %}
+    {% if user.id == request.user.id and is_seller %}
     <form action="{% url 'follow:is_seller' %}">
 
       <!-- 팔로우할 사용자의 ID를 hidden input으로 전달 -->

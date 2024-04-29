@@ -19,25 +19,25 @@ class UserCreateView(CreateView):
     template_name = 'registration/register.html'
     form_class = CustomUserCreationForm
     success_url = reverse_lazy('register_done')
+    
+    # def save(self, commit=True):
+    #     user = super(CustomUserCreationForm, self).save(commit=False)
+    #     user.email = self.cleaned_data['email']
+    #     if commit:
+    #         user.save()
 
-    def save(self, commit=True):
-        user = super(CustomUserCreationForm, self).save(commit=False)
-        user.email = self.cleaned_data['email']
-        if commit:
-            user.save()
+    #         # Profile 객체 생성 및 연결
+    #         profile = Profile.objects.create(
+    #             user=user,
+    #             user_image=self.cleaned_data['user_image'],
+    #             nickname=self.cleaned_data['nickname'],
+    #             phone_number=self.cleaned_data['phone_number'],
+    #             address=self.cleaned_data['address'],
+    #             detailed_address=self.cleaned_data['detailed_address'],
+    #             is_seller=self.cleaned_data['is_seller']
+    #         )
 
-            # Profile 객체 생성 및 연결
-            profile = Profile.objects.create(
-                user=user,
-                user_image=self.cleaned_data['user_image'],
-                nickname=self.cleaned_data['nickname'],
-                phone_number=self.cleaned_data['phone_number'],
-                address=self.cleaned_data['address'],
-                detailed_address=self.cleaned_data['detailed_address'],
-                is_seller=self.cleaned_data['is_seller']
-            )
-
-        return user
+    #     return user
 
 
 class UserCreateDoneTV(TemplateView):
