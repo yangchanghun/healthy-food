@@ -13,7 +13,6 @@ class Product(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     price = models.IntegerField()
-    stock = models.IntegerField()
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
     specific = models.CharField(max_length=100)
     

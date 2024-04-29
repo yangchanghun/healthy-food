@@ -1,14 +1,49 @@
 {% extends "base.html" %}
 
 {% block title %}register_done.html{% endblock %}
+{% block extra-style %}
+<style>
+    .container {
+        height : 34vh;
+        width: 100%; /* 화면 전체 너비 */
+        justify-content: center; /* 수평 가운데 정렬 */
+        align-items: center; /* 수직 가운데 정렬 */
+        text-align: center; /* 텍스트 가운데 정렬 */
+
+    }
+
+    .contents {
+        display: flex;
+        justify-content: center; /* 수평 가운데 정렬 */
+        align-items: center; /* 수직 가운데 정렬 */
+        text-align: center; /* 텍스트 가운데 정렬 */
+    }
+    .loginbtn {
+        width : 300px;
+        height : 50px;
+        display: flex;
+        justify-content: center; /* 수평 가운데 정렬 */
+        align-items: center; /* 수직 가운데 정렬 */
+        text-align: center; /* 텍스트 가운데 정렬 *
+    }
+</style>
+{% endblock %}
+
 
 {% block content %}
+<div class="container">
+    <div class="contents">
+        <div>
+            <h1>회원등록이 <br>
+                완료되었습니다!</h1>
+            <br>
 
-    <h1>Registration Completed Successfully</h1>
-    <br>
+            <p>Healthy-Food에 오신걸 환영합니다!</p>
+            <br>
 
-    <p>Thank you for registering.</p>
 
-    <p class="font-italic"><a href="{% url 'login' %}">Log in</a> </p>
-
+            <a class="btn btn-primary loginbtn" style="width= 20px;" href="{% url 'login' %}" role="button">로그인하러 가기</a>
+        </div>
+    </div>
+</div>
 {% endblock %}
