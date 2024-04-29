@@ -9,7 +9,7 @@
 
     {% if user.id == request.user.id %}
     <form action="{% url 'follow:is_seller' %}">
-      {% csrf_token %}
+
       <!-- 팔로우할 사용자의 ID를 hidden input으로 전달 -->
       <input type="submit" value="판매자 계정으로 이동" class="btn btn-light">
     </form>

@@ -9,7 +9,7 @@
 
     {% if user.id == request.user.id %}
     <form action="{% url 'follow:user_detail' request.user.id %}">
-      {% csrf_token %}
+
       <!-- 팔로우할 사용자의 ID를 hidden input으로 전달 -->
       <button type="submit" class="btn btn-light">일반 계정으로 이동</button>
     </form>
