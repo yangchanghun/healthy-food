@@ -45,19 +45,45 @@
         <p class="mt-3">{{ post.body_text }}</p>
 
         <!-- 좋아요 버튼 등 추가 기능 구현 -->
-        좋아요 수: {{ post.likes.count }}
+        <a href="{% url 'feed:like_content' post.id %}">좋아요</a>
+        수: {{ post.likes.count }}
+
 
         
         {% if post.content_type == 'review' and post.product %}
           <hr>
-          <h5>제툼 리뷰</h5>
-          <p>제툼명: {{ post.product.name }}</p>
+          <h5>제품 리뷰</h5>
+          <p>제품명: {{ post.product.name }}</p>
           <p>판매자: {{ post.seller.username }}</p>
         {% endif %}
       </div>
       <div class="card-footer text-muted">
         <p> {{ post.created_at|date:"Y-m-d H:i" }} </p>
       </div>
+      <!-- ----------------- 추가------------------------------  -->
+    {% for comment in post.comment_set.all %}   <!-- Content의 키값post를 참조받고있는 comment을 _set 객체 다가지고옴 -->
+                <div>
+                    <p>{{ comment.comment_text }}</p>
+                    <p>작성자: {{ comment.user.username }}</p>
+                    <p>작성일시: {{ comment.created_at }}</p>
+                    <!-- 관리자 혹은 댓글작성자 본인만 댓글 삭제가능 -->
+                    {% if request.user == comment.user or request.user.is_staff %}
+                        <form action="{% url 'feed:comments_delete' comment.pk %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">삭제</button>
+                        </form>
+                    {% endif %}
+                    
+                </div>
+            {% empty %}
+                <p>댓글이 없습니다.</p>
+            {% endfor %}
+      <form action="{% url 'feed:comments_create' post.id %}" method="post">
+        {% csrf_token %}
+        {{ commentform }}
+        <button type="submit">작성</button>
+    </form>
+    <!------------------------------------------------- -->
     </div>
 </div>
 {% endblock %}
