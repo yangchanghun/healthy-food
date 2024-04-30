@@ -66,6 +66,14 @@
                     <p>{{ comment.comment_text }}</p>
                     <p>작성자: {{ comment.user.username }}</p>
                     <p>작성일시: {{ comment.created_at }}</p>
+                    <!-- 관리자 혹은 댓글작성자 본인만 댓글 삭제가능 -->
+                    {% if request.user == comment.user or request.user.is_staff %}
+                        <form action="{% url 'feed:comments_delete' comment.pk %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">삭제</button>
+                        </form>
+                    {% endif %}
+                    
                 </div>
             {% empty %}
                 <p>댓글이 없습니다.</p>
