@@ -19,6 +19,6 @@ Index 페이지(모든 유저 리스트)
 {% endfor %}
 
 {% for user in users %}
-  <a href="{% url 'follow:user_detail' user.id %}">{{ user.username }}</a>
+  <a href="{% url 'feed:view_user' user.id %}">{{ user.username }}</a>
 {% endfor %}
 {% endblock %}
