@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block extra-style %}
 <style>
     .bd-placeholder-img {
       font-size: 1.125rem;
@@ -77,12 +78,22 @@
     .bd-mode-toggle .dropdown-menu .active .bi {
       display: block !important;
     }
+
+    .fw-normal{
+      margin-top : 25px;
+    }
+    .container_product{
+      margin-top : 100px;
+      text-align : center;
+    }
+    
+
   </style>
+  {% endblock %}
 
   <link href="{% static 'carousel.css' %}" rel="stylesheet">
 
 {% block content %}
-
 <main>
 
 <div id="myCarousel" class="carousel slide mb-6" data-bs-ride="carousel">
@@ -92,28 +103,24 @@
     <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
   </div>
   <div class="carousel-inner">
-    <div class="carousel-item active">
-      <svg class="bd-placeholder-img" width="100%" height="450px" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false"><rect width="100%" height="450px" fill="var(--bs-secondary-color)"/></svg>
+    <div class="carousel-item active" style="background-color: #c5e3ed;">
+      <img src="{% static 'banner1.png' %}" class="d-flex w-75 m-auto" height="450px" alt="Image Caption">
+      <div class="container">
+        <div class="carousel-caption text-end">
+          <a class="btn btn-lg btn-info" style="margin-right : 20px; margin-bottom: 20px; color: white;" href="{% url 'product:product_list' %}">Go Market &nbsp;<img style="width : 9px;"src="{% static 'arrow.png' %}"></a>
+        </div>
+      </div>
+    </div>
+    <div class="carousel-item" style="background-color : #fbf7ec;">
+      <img src="{% static 'banner_2.png' %}" class="d-flex w-75 m-auto text-white" height="450px" alt="Image Caption">      
       <div class="container">
         <div class="carousel-caption text-start">
-          <h1>Example headline.</h1>
-          <p class="opacity-75">Some representative placeholder content for the first slide of the carousel.</p>
-          <p><a class="btn btn-lg btn-primary" href="#">Sign up today</a></p>
+          <p><a class="btn btn-lg btn-success" href="{% url 'feed:index' %}"> See Story &nbsp;<img style="width : 9px;"src="{% static 'arrow.png' %}"></a></p>
         </div>
       </div>
     </div>
     <div class="carousel-item">
-      <svg class="{% static 'banner.jpg' %}" width="100%" height="450px" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false"><rect width="100%" height="450px" fill="var(--bs-secondary-color)"/></svg>
-      <div class="container">
-        <div class="carousel-caption">
-          <h1>Another example headline.</h1>
-          <p>Some representative placeholder content for the second slide of the carousel.</p>
-          <p><a class="btn btn-lg btn-primary" href="#">Learn more</a></p>
-        </div>
-      </div>
-    </div>
-    <div class="carousel-item">
-      <svg class="bd-placeholder-img" width="100%" height="450px" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false"><rect width="100%" height="450px" fill="var(--bs-secondary-color)"/></svg>
+      <svg class="bd-placeholder-img" width="100%" height="450px" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false"><rect width="100%" height="550px" fill="var(--bs-secondary-color)"/></svg>
       <div class="container">
         <div class="carousel-caption text-end">
           <h1>One more for good measure.</h1>
@@ -123,7 +130,7 @@
       </div>
     </div>
   </div>
-  <button class="carousel-control-prev" type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
+  <button class="carousel-control-prev m-auto" type="button" data-bs-target="#myCarousel" data-bs-slide="prev">
     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
     <span class="visually-hidden">Previous</span>
   </button>
@@ -133,6 +140,24 @@
   </button>
 </div>
 
+<div class="container marketing" style="margin-top: 80px;">
+  <div class="row">
+    <div class="col-lg-4" style="text-align:center;">
+      <img src="{% static 'icon_1.png' %}" style= "width: 100px; height: auto" alt="Image Caption">
+      <h3 class="fw-normal">가장 소량씩, 가장 신선하게</h3>
+      <p>적은 양으로 부담없이 즐겨요.</p>
+    </div><!-- /.col-lg-4 -->
+    <div class="col-lg-4" style="text-align:center;">
+      <img src="{% static 'icon_2.png' %}" style= "width: 100px; height: auto" alt="Image Caption">      
+      <h3 class="fw-normal">친환경 채소를 가장 저렴하게!</h3>
+      <p>30% OFF, 합리적인 가격으로 만나요!</p>
+    </div><!-- /.col-lg-4 -->
+    <div class="col-lg-4" style="text-align:center;">
+      <img src="{% static 'icon_3.png' %}" style= "width: 100px; height: auto" alt="Image Caption">      
+      <h3 class="fw-normal">환경에 한 발 나은 선택</h3>
+      <p>환경에 더 가까운 생산과 소비를 지지해요.</p>
+    </div><!-- /.col-lg-4 -->
+  </div><!-- /.row -->
 
 
 {% endblock %}

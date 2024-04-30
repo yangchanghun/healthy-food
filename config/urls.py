@@ -38,4 +38,6 @@ urlpatterns = [
     path("cart/", include("cart.urls")),
     # 게시글(댓글, 좋아요)
     path("feed/", include("feed.urls")),
+    # 주문 생성
+    path("orders/", include("orders.urls")),
 ]+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

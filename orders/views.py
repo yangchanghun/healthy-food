@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from .models import *
 from django.contrib.auth.decorators import login_required
+
 
 @login_required
 def create_order(request):
@@ -21,13 +22,10 @@ def create_order(request):
             )
         
         for item_id, comp in cart.items():
-            # 여기서 item_id는 메뉴의 ID, quantity는 주문 개수
-            # 예제 코드에서는 메뉴 모델을 Menu라고 가정
-            # menu_item = Menu.objects.get(id=item_id) # 메뉴 객체 조회
             quantity = comp['quantity']
             OrderItem.objects.create(
                 order_id=order.pk,
-                menu_id=item_id,
+                product_id=item_id,
                 quantity=quantity
             )
 
@@ -36,4 +34,32 @@ def create_order(request):
         
         return redirect('orders:order_detail', order_id=order.id) 
         
-    return render(request, 'orders/create_order.html', {'cart': cart})
+    else:
+        # GET 요청 시 에러 메시지 반환
+        return HttpResponse('잘못된 요청입니다.', status=405)
+
+
+@login_required
+def order_history(request):
+    user = request.user
+    orders = Order.objects.filter(user=user) 
+    orders_with_total = []
+    for order in orders:
+        total_price = order.get_total_price()  # 이전에 정의한 get_total_price 메소드 사용
+        orders_with_total.append((order, total_price))
+    
+    # 템플릿에 orders_with_total 리스트를 전달
+    return render(request, 'orders/order_history.html', {'orders_with_total': orders_with_total})
+
+
+@login_required
+def order_detail(request, order_id):
+    # 주문 ID를 사용하여 주문 정보를 가져옴
+    order = get_object_or_404(Order, id=order_id)
+
+    # 해당 주문에 속한 모든 상품 아이템들을 가져옴
+    order_items = OrderItem.objects.filter(order=order)
+
+    # 주문 정보와 상품 아이템들을 템플릿에 전달하여 주문 상세 페이지를 렌더링
+    return render(request, 'orders/order_detail.html', {'order': order, 'order_items': order_items})
+

@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 from django.views.generic import ListView
 from django.shortcuts import get_object_or_404
-
 from cart.forms import AddProductForm
 
 """login_required -> 판매자 인증기능 필요, 개발 후 수정(판매자일 경우에 접근 가능)
@@ -98,7 +97,6 @@ class ProductListView(ListView):
         context['product_images'] = product_images
 
         return context
-    
     
 def product_detail(request, pk):
     object = Product.objects.get(pk=pk)
