@@ -1,11 +1,25 @@
-from django.shortcuts import render, get_object_or_404,redirect #redirect추가
-from .models import Content, FeedImage
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Content, FeedImage, Like
 from django.contrib.auth.models import User
 from userprofile.models import Profile
 from django.views.generic import ListView, CreateView
 from .models import *
 from .forms import ContentForm, ReviewContentForm, CommentForm
 from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+
+@login_required
+def like_content(request, content_id):
+    content = get_object_or_404(Content, id=content_id)
+    like_qs = Like.objects.filter(user=request.user, content=content)
+
+    if like_qs.exists():
+        like_qs[0].delete()  # 이미 '좋아요'를 눌렀다면 삭제하여 '좋아요' 취소
+    else:
+        Like.objects.create(user=request.user, content=content)  # '좋아요' 추가
+
+    return redirect(reverse('feed:post_detail', args=(content.id, )))
 
 class ContentListView(ListView):
     model = Content
@@ -61,23 +75,22 @@ class ReviewCreateView(CreateView):
 
 def post_detail(request, pk):
     post = get_object_or_404(Content, pk=pk)
-    commentform = CommentForm()  # (추가) forms.py에있는 CommentForm 가지고옴
-    return render(request, 'feed/post_detail.html', {'post': post,'commentform':commentform})  #(추가)
-# -----------------댓글저장 로직 추가--------------------------------------------
+    commentform = CommentForm()  
+    return render(request, 'feed/post_detail.html', {'post': post,'commentform':commentform})  
 
 def comments_create(request, pk):
     if request.method == 'POST':
-        content = get_object_or_404(Content, pk=pk)  # 게시물을 번호가지고옴
-        commentform = CommentForm(request.POST) # 값을받아 폼에 저장
+        content = get_object_or_404(Content, pk=pk)  
+        commentform = CommentForm(request.POST) 
         if commentform.is_valid():
-            comment = commentform.save(commit=False) # commit=False -> 임시저장
+            comment = commentform.save(commit=False) 
             comment.user = request.user  # 현재 사용자를 댓글 작성자로 지정
             comment.content = content  # 게시물 번호 가져와서 게시물 지정함
             comment.save() #DB저장
 
-    return redirect('feed:post_detail', pk=pk) #저장하고 그자리
+    return redirect('feed:post_detail', pk=pk) 
 
-# -------------댓글삭제 로직 추가----------------
+# 댓글삭제 
 def comments_delete(request, pk):
     comment = get_object_or_404(Comment, pk=pk)
     if request.method == 'POST':
@@ -85,3 +98,4 @@ def comments_delete(request, pk):
 
     return redirect('feed:post_detail', pk=comment.content.pk)
         
+
