@@ -76,3 +76,12 @@ def comments_create(request, pk):
             comment.save() #DB저장
 
     return redirect('feed:post_detail', pk=pk) #저장하고 그자리
+
+# -------------댓글삭제 로직 추가----------------
+def comments_delete(request, pk):
+    comment = get_object_or_404(Comment, pk=pk)
+    if request.method == 'POST':
+        comment.delete()
+
+    return redirect('feed:post_detail', pk=comment.content.pk)
+        
