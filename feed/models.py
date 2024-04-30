@@ -32,7 +32,7 @@ class Like(models.Model):
 class FeedImage(models.Model):
     content = models.ForeignKey(Content, on_delete=models.CASCADE, related_name='feed_images')
     image = models.ImageField(upload_to='feed_images/') 
-#---수정----
+
 class Comment(models.Model):
     content = models.ForeignKey(Content,on_delete=models.CASCADE)
     user = models.ForeignKey(User,on_delete=models.CASCADE)  # 댓글을 작성한 사용자
