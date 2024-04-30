@@ -61,18 +61,17 @@ class ReviewCreateView(CreateView):
 
 def post_detail(request, pk):
     post = get_object_or_404(Content, pk=pk)
-    commentform = CommentForm()  # (추가) forms.py에있는 CommentForm 가지고옴
-    return render(request, 'feed/post_detail.html', {'post': post,'commentform':commentform})  #(추가)
-# -----------------댓글저장 로직 추가--------------------------------------------
+    commentform = CommentForm()  
+    return render(request, 'feed/post_detail.html', {'post': post,'commentform':commentform})  
 
 def comments_create(request, pk):
     if request.method == 'POST':
-        content = get_object_or_404(Content, pk=pk)  # 게시물을 번호가지고옴
-        commentform = CommentForm(request.POST) # 값을받아 폼에 저장
+        content = get_object_or_404(Content, pk=pk)  
+        commentform = CommentForm(request.POST) 
         if commentform.is_valid():
-            comment = commentform.save(commit=False) # commit=False -> 임시저장
+            comment = commentform.save(commit=False) 
             comment.user = request.user  # 현재 사용자를 댓글 작성자로 지정
             comment.content = content  # 게시물 번호 가져와서 게시물 지정함
             comment.save() #DB저장
 
-    return redirect('feed:post_detail', pk=pk) #저장하고 그자리
+    return redirect('feed:post_detail', pk=pk) 

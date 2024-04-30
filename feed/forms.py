@@ -28,10 +28,10 @@ class ReviewContentForm(ContentForm):
     
 
 class CommentForm(forms.ModelForm):
-    class Meta: # (내부 클래스 메타에 모델 어떤거 쓸건지)
+    class Meta: 
         model = Comment 
-        fields = ['comment_text'] # (입력 받고자 하는 fields)
-        exclude = ('user',)  # 'user' 필드를 제외
+        fields = ['comment_text'] 
+        exclude = ('user',)  # user 필드를 제외
 
 
 	   
