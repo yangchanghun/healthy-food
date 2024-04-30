@@ -55,15 +55,29 @@ class ProfileForm(forms.ModelForm):
         model = Profile
         fields = ('user_image', 'nickname', 'phone_number', 'address', 'detailed_address', 'is_seller')
 
-    def save(self, commit=True):
-        profile = super().save(commit=commit)
-        
+    def save(self, user=None, commit=True):  # user 인자 추가
+        profile = super().save(commit=False)  # commit=False로 호출
+        if user is not None:
+            profile.user = user  # User 인스턴스 연결
+
         if self.cleaned_data['is_seller']:
             try:
                 with transaction.atomic():
                     group = Group.objects.get(name='Sellers')
-                    group.user_set.add(self.instance.user)
+                    group.user_set.add(user)  # 여기에서는 self.instance.user 대신 user 사용
             except Group.DoesNotExist:
                 pass
-
         return profile
+
+    # def save(self, commit=True):
+    #     profile = super().save(commit=commit)
+        
+    #     if self.cleaned_data['is_seller']:
+    #         try:
+    #             with transaction.atomic():
+    #                 group = Group.objects.get(name='Sellers')
+    #                 group.user_set.add(self.instance.user)
+    #         except Group.DoesNotExist:
+    #             pass
+
+    #     return profile
