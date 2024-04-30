@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Group
 from userprofile.models import Profile
+from django.db import transaction
+
 
 """
 여기에 정의된 form을 사용하면 email 필드 값이 email이 맞는지, 보안 등 이점이 있습니다
@@ -60,7 +62,6 @@ class ProfileForm(forms.ModelForm):
             try:
                 with transaction.atomic():
                     group = Group.objects.get(name='Sellers')
-                    # self.instance.user를 통해 사용자 인스턴스에 접근
                     group.user_set.add(self.instance.user)
             except Group.DoesNotExist:
                 pass
