@@ -1,7 +1,9 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from userprofile.models import Profile
+from django.db import transaction
+
 
 """
 여기에 정의된 form을 사용하면 email 필드 값이 email이 맞는지, 보안 등 이점이 있습니다
@@ -47,7 +49,21 @@ class CustomUserCreationForm(UserCreationForm):
         model = User
         fields = ('username', 'email', 'password1', 'password2')
 
+
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ('user_image', 'nickname', 'phone_number', 'address', 'detailed_address', 'is_seller')
+
+    def save(self, commit=True):
+        profile = super().save(commit=commit)
+        
+        if self.cleaned_data['is_seller']:
+            try:
+                with transaction.atomic():
+                    group = Group.objects.get(name='Sellers')
+                    group.user_set.add(self.instance.user)
+            except Group.DoesNotExist:
+                pass
+
+        return profile
