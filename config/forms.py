@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from userprofile.models import Profile
 
 """
@@ -47,7 +47,22 @@ class CustomUserCreationForm(UserCreationForm):
         model = User
         fields = ('username', 'email', 'password1', 'password2')
 
+
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ('user_image', 'nickname', 'phone_number', 'address', 'detailed_address', 'is_seller')
+
+    def save(self, commit=True):
+        profile = super().save(commit=commit)
+        
+        if self.cleaned_data['is_seller']:
+            try:
+                with transaction.atomic():
+                    group = Group.objects.get(name='Sellers')
+                    # self.instance.user를 통해 사용자 인스턴스에 접근
+                    group.user_set.add(self.instance.user)
+            except Group.DoesNotExist:
+                pass
+
+        return profile

@@ -12,6 +12,7 @@ def index(request):
 def login(request) :
     return render(request, 'registration/login.html')
 
+
 def register_user(request):
     if request.method == 'POST':
         user_form = CustomUserCreationForm(request.POST)
