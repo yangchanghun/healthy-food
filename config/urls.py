@@ -19,23 +19,26 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 from . import views
-from .views import UserCreateView, UserCreateDoneTV
-from .views import check_duplicate
-
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
+    # 로그인, 회원가입
     path('login/', views.login, name='login'),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('accounts/register/', UserCreateView.as_view(), name='register'),
-    path('accounts/register/done/', UserCreateDoneTV.as_view(), name='register_done'),
-    path('check_duplicate/', check_duplicate, name='check_duplicate'),
+    path('accounts/register/', views.register_user, name='register'),
+    path('accounts/register/done/', views.UserCreateDoneTV.as_view(), name='register_done'),
+    path('check_duplicate/', views.check_duplicate, name='check_duplicate'),
     
+    # 팔로우, 팔로잉
     path('user/', include('follow.urls')),
+    # 상품
     path('product/', include('product.urls')),
     path("cart/", include("cart.urls")),
+    # 게시글(댓글, 좋아요)
     path("feed/", include("feed.urls")),
+    # profile 모델
+    path("userprofile/", include("userprofile.urls")),
 
 ]+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

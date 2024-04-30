@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container my-4">
+  <div class="mb-3 hstack gap-5">
+    <h2 class="">일반 계정</h2>
+
+    {% if user.id == request.user.id and is_seller %}
+    <form action="{% url 'follow:is_seller' %}">
+
+      <!-- 팔로우할 사용자의 ID를 hidden input으로 전달 -->
+      <input type="submit" value="판매자 계정으로 이동" class="btn btn-light">
+    </form>
+    {% endif %}
+  </div>
+
+  <h3>
+    <div class="mb-2"><strong>{{ user }}</strong></div>
+  </h3>
+
+  <div class="mb-3 hstack gap-1">
+    <div class="p-1">팔로우: <span class="badge bg-secondary">{{ user.followers.count }}</span></div>
+    <div class="p-1">팔로잉: <span class="badge bg-secondary">{{ user.following.count }}</span></div>
+  </div>
+
+  </div>
+
+{% endblock %}
