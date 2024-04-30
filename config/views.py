@@ -5,12 +5,19 @@ from .forms import CustomUserCreationForm, ProfileForm
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from userprofile.models import Profile
+from product.models import Product
 
 def index(request):
     return render(request, 'home.html')
 
 def login(request) :
     return render(request, 'registration/login.html')
+
+def product_list(request):
+    products = Product.objects.all()
+    product_images = {product.id: product.get_main_image_url() for product in products}
+    return render(request, 'home.html', {'products': products, 'product_images': product_images})
+
 
 def register_user(request):
     if request.method == 'POST':

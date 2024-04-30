@@ -50,7 +50,7 @@
           <li><a href="{% url 'product:product_list' %}" class="nav-link px-2">건강마켓</a></li>
           <li><a href="{% url 'feed:index' %}" class="nav-link px-2">농장 이야기</a></li>
           <li><a href="#" class="nav-link px-2">고객센터</a></li>
-          <li><a href="#" class="nav-link px-2">대하여</a></li>
+          <li><a href="#" class="nav-link px-2">About</a></li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'cart:detail' %}">Cart
               {% if cart|length > 0 %}
@@ -63,14 +63,12 @@
         </ul>
         <ul class="navbar-nav ms-auto">
           <li class="nav-item dropdown">
-              {% if user.is_active %}
+              {% if request.user.is_active %}
                   <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <svg class="bi me-2" width="40" height="32">
-                      <use xlink:href="{{ user.userprofile.user_image.url }}"/>
-                    </svg>  
-                    <i class="fas fa-user-circle"></i>&nbsp;{% firstof user.get_short_name user.get_username %}
+                      <i class="fas fa-user-circle"></i>&nbsp;{% firstof user.get_short_name user.get_username %}
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="navbarUserDropdown">
+                    <li><a class="dropdown-item" href="{% url 'follow:user_detail' request.user.id %}">My Profile</a></li>
                       <form action="{% url 'logout' %}" method="post">
                           {% csrf_token %}
                           <button type="submit" class="dropdown-item">Logout</button>
