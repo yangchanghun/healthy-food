@@ -12,7 +12,6 @@ def index(request):
 def login(request) :
     return render(request, 'registration/login.html')
 
-
 def register_user(request):
     if request.method == 'POST':
         user_form = CustomUserCreationForm(request.POST)
@@ -33,11 +32,6 @@ def register_user(request):
     }
     return render(request, 'registration/register.html', context)
 
-
-class UserCreateDoneTV(TemplateView):
-    template_name='registration/register_done.html'
-
-
 def check_duplicate(request):
     field_type = request.GET.get('field_type')
     field_value = request.GET.get('field_value')
@@ -54,3 +48,6 @@ def check_duplicate(request):
         'is_taken': is_taken
     }
     return JsonResponse(data)
+
+class UserCreateDoneTV(TemplateView):
+    template_name='registration/register_done.html'

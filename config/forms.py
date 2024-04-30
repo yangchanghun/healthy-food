@@ -43,41 +43,45 @@ check_duplicate를 이용하기 위해서 현재 파일에 있는 email, nicknam
 **요약 끝**
 """
 class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2')
+        fields = ('username', 'password1', 'password2')
 
+    def __init__(self, *args, **kwargs):
+      super().__init__(*args, **kwargs)
+      # username 필드에 form-control 클래스를 추가
+      self.fields['username'].widget.attrs.update({'class': 'form-control'})
+      # password1 필드에 form-control 클래스를 추가
+      self.fields['password1'].widget.attrs.update({'class': 'form-control', 'type': 'password'})
+      # password2 필드에 form-control 클래스를 추가
+      self.fields['password2'].widget.attrs.update({'class': 'form-control', 'type': 'password'})
+      # # email 필드에 form-control 클래스를 추가
+      # self.fields['email'].widget.attrs.update({'class': 'form-control'})
 
 class ProfileForm(forms.ModelForm):
+    user_image = forms.ImageField(label='프로필 이미지', required=False, widget=forms.FileInput(attrs={'class': 'form-control-file'}))
+    nickname = forms.CharField(label='닉네임', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    phone_number = forms.CharField(label='전화번호', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    address = forms.CharField(label='주소', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    detailed_address = forms.CharField(label='상세 주소', widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 1}))
+    is_seller = forms.BooleanField(label='판매자 여부', required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
+
     class Meta:
         model = Profile
         fields = ('user_image', 'nickname', 'phone_number', 'address', 'detailed_address', 'is_seller')
 
     def save(self, user=None, commit=True):  # user 인자 추가
-        profile = super().save(commit=False)  # commit=False로 호출
-        if user is not None:
-            profile.user = user  # User 인스턴스 연결
+      profile = super().save(commit=False)  # commit=False로 호출
+      if user is not None:
+          profile.user = user  # User 인스턴스 연결
 
-        if self.cleaned_data['is_seller']:
-            try:
-                with transaction.atomic():
-                    group = Group.objects.get(name='Sellers')
-                    group.user_set.add(user)  # 여기에서는 self.instance.user 대신 user 사용
-            except Group.DoesNotExist:
-                pass
-        return profile
-
-    # def save(self, commit=True):
-    #     profile = super().save(commit=commit)
-        
-    #     if self.cleaned_data['is_seller']:
-    #         try:
-    #             with transaction.atomic():
-    #                 group = Group.objects.get(name='Sellers')
-    #                 group.user_set.add(self.instance.user)
-    #         except Group.DoesNotExist:
-    #             pass
-
-    #     return profile
+      if self.cleaned_data['is_seller']:
+          try:
+              with transaction.atomic():
+                  group = Group.objects.get(name='Sellers')
+                  group.user_set.add(user)  # 여기에서는 self.instance.user 대신 user 사용
+          except Group.DoesNotExist:
+              pass
+      return profile
