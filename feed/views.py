@@ -1,11 +1,25 @@
-from django.shortcuts import render, get_object_or_404
-from .models import Content, FeedImage
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Content, FeedImage, Like
 from django.contrib.auth.models import User
 from userprofile.models import Profile
 from django.views.generic import ListView, CreateView
 from .models import *
 from .forms import ContentForm, ReviewContentForm
 from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+
+@login_required
+def like_content(request, content_id):
+    content = get_object_or_404(Content, id=content_id)
+    like_qs = Like.objects.filter(user=request.user, content=content)
+
+    if like_qs.exists():
+        like_qs[0].delete()  # 이미 '좋아요'를 눌렀다면 삭제하여 '좋아요' 취소
+    else:
+        Like.objects.create(user=request.user, content=content)  # '좋아요' 추가
+
+    return redirect(reverse('feed:post_detail', args=(content.id, )))
 
 class ContentListView(ListView):
     model = Content
