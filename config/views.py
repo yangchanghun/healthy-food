@@ -20,8 +20,7 @@ def register_user(request):
         if user_form.is_valid() and profile_form.is_valid():
             # 사용자 모델 저장
             new_user = user_form.save()
-            new_profile = profile_form.save(commit=False)
-            new_profile.user = new_user  # User 모델과 Profile 모델 연결
+            new_profile = profile_form.save(user=new_user, commit=False) # User 모델과 Profile 모델 연결
             new_profile.save()  # 프로필 모델 DB에 저장
             return redirect('register_done')  # 가입 완료 페이지로 리다이렉트
     else:
