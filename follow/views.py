@@ -9,7 +9,7 @@ from .models import Follow
 from django.contrib.auth.models import User, Group
 from django.views import generic
 from product.models import Product
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 def index(request):
     User = get_user_model()
@@ -40,27 +40,17 @@ def following(request):
         return HttpResponseRedirect(reverse('follow:index'))
     
 
-# def is_seller(request):
-#     # 현재 사용자가 Sellers 그룹에 속해 있는지 확인
-#     if request.user.groups.filter(name='Sellers').exists():
-#         # 속해 있다면 seller_page.html로 이동
-#         return render(request, 'follow/seller_page.html')
-#     else:
-#         return HttpResponseRedirect(reverse('follow:index'))
-
-class SellerProductLV(LoginRequiredMixin, generic.ListView):
+class SellerProductLV(LoginRequiredMixin, UserPassesTestMixin, generic.ListView):
     model = Product
     template_name = 'follow/seller_page.html'
     context_object_name = 'products'
     login_url = reverse_lazy('follow:index')
 
-    # def get_queryset(self):
-    #     return Product.objects.filter(seller=self.request.user).prefetch_related('images')
+    def test_func(self): # 현재 유저가 그룹에 속하면 접속, 아니면 403 에러
+        # 현재 로그인한 사용자가 Sellers 그룹에 속해 있는지 확인
+        return self.request.user.groups.filter(name='Sellers').exists()
     
     def get_queryset(self):
-        # 현재 사용자가 Sellers 그룹에 속해 있는지 확인
-        if not self.request.user.groups.filter(name='Sellers').exists():
-            return Product.objects.none()  # Sellers 그룹에 속하지 않은 경우 빈 쿼리셋 반환
         return Product.objects.filter(seller=self.request.user).prefetch_related('images')
 
     def get_context_data(self, **kwargs):

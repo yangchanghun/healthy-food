@@ -9,6 +9,9 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order {self.id}"
+    
+    def get_total_price(self):
+        return sum(item.get_total_item_price() for item in self.order_items.all())
 
 
 class OrderItem(models.Model):
@@ -17,4 +20,7 @@ class OrderItem(models.Model):
     quantity = models.IntegerField()
 
     def __str__(self):
-        return f"{self.menu} x {self.quantity}"
+        return f"{self.product.name} x {self.quantity}"
+    
+    def get_total_item_price(self):
+        return self.quantity * self.product.price
