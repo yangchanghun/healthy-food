@@ -54,3 +54,16 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ('user_image', 'nickname', 'phone_number', 'address', 'detailed_address', 'is_seller')
+
+    def save(self, commit=True):
+        profile = super().save(commit=commit)
+        
+        if self.cleaned_data['is_seller']:
+            try:
+                with transaction.atomic():
+                    group = Group.objects.get(name='Sellers')
+                    group.user_set.add(self.instance.user)
+            except Group.DoesNotExist:
+                pass
+
+        return profile
