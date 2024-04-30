@@ -38,7 +38,4 @@ urlpatterns = [
     path("cart/", include("cart.urls")),
     # 게시글(댓글, 좋아요)
     path("feed/", include("feed.urls")),
-    # profile 모델
-    path("userprofile/", include("userprofile.urls")),
-
 ]+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
