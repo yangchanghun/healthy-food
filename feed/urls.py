@@ -13,4 +13,5 @@ urlpatterns = [
     path('like-content/<int:content_id>/', like_content, name='like-content'),
     path('comment/create/<int:pk>/', views.comments_create, name='comments_create'), #추가1
     path('comment/delete/<int:pk>/', views.comments_delete, name='comments_delete'), #추가 2
+    path('user/<int:pk>/', views.view_user, name='view_user')
     ]

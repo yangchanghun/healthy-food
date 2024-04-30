@@ -48,10 +48,10 @@
         <h4>총합계: {{cart.get_product_total}}원</h4>
         <a href="{% url 'product:product_list' %}" class="btn btn-primary">쇼핑 계속하기</a>
         
-        {% comment %} <form method="post" action="{% url 'orders:create_order' %}">
+        <form method="post" action="{% url 'orders:create_order' %}">
             {% csrf_token %}
             <button type="submit" class="btn btn-success">결제하기</button>
-        </form> {% endcomment %}
+        </form> 
 
     </div>
 </div>
