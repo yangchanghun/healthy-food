@@ -13,6 +13,10 @@
   .carousel-item {
     transition: transform 1s ease, opacity 0.5s ease; 
   }
+  /* 좋아요 링크에 대한 밑줄 제거 */
+  .no-underline {
+    text-decoration: none; /* 밑줄 없애기 */
+  }
   
 </style>
 <div class="container mt-5">
@@ -45,8 +49,12 @@
         <p class="mt-3">{{ post.body_text }}</p>
 
         <!-- 좋아요 버튼 등 추가 기능 구현 -->
-        <a href="{% url 'feed:like_content' post.id %}">좋아요</a>
-        수: {{ post.likes.count }}
+        {% if user in post.likes.all %}
+          <a href="{% url 'feed:like_content' post.id %}" class="no-underline">❤️</a> <!-- 좋아요를 눌렀을 때 -->
+        {% else %}
+          <a href="{% url 'feed:like_content' post.id %}" class="no-underline">🤍</a> <!-- 좋아요를 누르지 않았을 때 -->
+        {% endif %}
+        : {{ post.likes.count }}
 
 
         
