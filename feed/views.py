@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Content, FeedImage, Like
 from django.contrib.auth.models import User
 from userprofile.models import Profile
-from django.views.generic import ListView, CreateView
+from django.views.generic import ListView, CreateView, DetailView
 from .models import *
 from .forms import ContentForm, ReviewContentForm, CommentForm
 from django.urls import reverse_lazy
@@ -98,4 +98,12 @@ def comments_delete(request, pk):
 
     return redirect('feed:post_detail', pk=comment.content.pk)
         
-
+def view_user(request, pk):
+    user = User.objects.get(pk=pk)
+    posts = Content.objects.filter(user=pk, content_type='post')
+    reviews = Content.objects.filter(user=pk, content_type='review')
+    context = {'user': user,
+                'posts': posts,
+                'reviews': reviews,
+                }
+    return render(request, 'feed/view_user_page.html', context)

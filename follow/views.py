@@ -1,14 +1,13 @@
-from typing import Any
-from django.db.models.query import QuerySet
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 from .models import Follow
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.views import generic
 from product.models import Product
+from feed.models import Content
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 def index(request):
@@ -24,6 +23,8 @@ class UserDV(generic.DetailView):
         context = super().get_context_data(**kwargs)
         # 사용자가 판매자 그룹에 속해있는지 확인
         context['is_seller'] = self.request.user.groups.filter(name='Sellers').exists()
+        context['posts'] = Content.objects.filter(user=self.request.user, content_type='post')
+        context['reviews'] = Content.objects.filter(user=self.request.user, content_type='review')
         return context
 
 @login_required
@@ -37,7 +38,7 @@ def following(request):
         # 이미 팔로우하고 있는지 확인
         if not Follow.objects.filter(follower=follower, following=user_to_follow).exists():
             Follow.objects.create(follower=follower, following=user_to_follow)
-        return HttpResponseRedirect(reverse('follow:index'))
+        return HttpResponseRedirect(reverse('feed:view_user', kwargs={'pk': user_to_follow_id}))
     
 
 class SellerProductLV(LoginRequiredMixin, UserPassesTestMixin, generic.ListView):
@@ -59,5 +60,6 @@ class SellerProductLV(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
         for product in context['products']:
             product_images[product.id] = product.images.first().image_url if product.images.exists() else None
         context['product_images'] = product_images
+        context['reviews'] = Content.objects.filter(seller=self.request.user, content_type='review')
 
         return context
