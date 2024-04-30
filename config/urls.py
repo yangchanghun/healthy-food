@@ -28,7 +28,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/register/', views.register_user, name='register'),
     path('accounts/register/done/', views.UserCreateDoneTV.as_view(), name='register_done'),
-    path('check_duplicate/', views.check_duplicate, name='check_duplicate'),
+    # path('check_duplicate/', views.check_duplicate, name='check_duplicate'),
     
     path('user/', include('follow.urls')),
     path('product/', include('product.urls')),

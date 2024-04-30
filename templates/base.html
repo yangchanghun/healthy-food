@@ -14,46 +14,43 @@
   {% block extra-style %}
   {% endblock %}
   <style>
-  .container{
-    background-color: transparent;
+  body{
+    background-color: #f4f4f4;
+  }
+
+  .container img{
+    width: 230px;
+    height : auto;
+    margin-left:0px;
   }
   .nav{
-    margin-left : -210px;
-  }
-  .nav img{
-    width: 45px;
-    height : auto;
-    margin-right : 10px;
+    margin-left : 40px;
   }
   .nav li a{
     margin : 0 16px;
     font-family: "Outfit", sans-serif;
-    font-weight: 700;
+    color : black;
+    font-weight : 400;
   }
   
-  .nav-link{
-    color: #0d6efd;
-    font-weight : 700;
-  }
 
   </style>
   <body>
-    <h1 class="visually-hidden">Headers examples</h1>
-
     <div class="container">
       <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3">
         <div class="col-md-3 mb-2 mb-md-0">
-            <svg class="bi" width="40" height="30" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"/></svg>
-          </a>
+          <a class="navbar-brand" href="{% url 'index' %}"><img src='{% static 'logo_1.png' %}'></a>
         </div>
+    <h1 class="visually-hidden">Headers examples</h1>
+
   
-        <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0" style="font : bold">
-          <li><a class="navbar-brand" href="{% url 'index' %}"><img src='{% static 'Healthy-logo.png' %}'></a></li>
-          <li><a href="{% url 'index' %}" class="nav-link px-2">Home</a></li>
-          <li><a href="{% url 'product:product_list' %}" class="nav-link px-2">Products</a></li>
-          <li><a href="{% url 'feed:index' %}" class="nav-link px-2">Farm Story</a></li>
-          <li><a href="#" class="nav-link px-2">Customer</a></li>
-          <li><a href="#" class="nav-link px-2">About</a></li>
+        <ul class="nav col-12 col-md-auto d-flex flex-wrap align-items-center justify-content-center text-align-center">
+          {% comment %} <li><a class="navbar-brand" href="{% url 'index' %}"><img src='{% static 'logo_2.png' %}'></a></li> {% endcomment %}
+          {% comment %} <li><a href="{% url 'index' %}" class="nav-link px-2">Home</a></li> {% endcomment %}
+          <li><a href="{% url 'product:product_list' %}" class="nav-link px-2">건강마켓</a></li>
+          <li><a href="{% url 'feed:index' %}" class="nav-link px-2">농장 이야기</a></li>
+          <li><a href="#" class="nav-link px-2">고객센터</a></li>
+          <li><a href="#" class="nav-link px-2">대하여</a></li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'cart:detail' %}">Cart
               {% if cart|length > 0 %}

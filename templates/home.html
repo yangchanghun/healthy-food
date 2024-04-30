@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block extra-style %}
 <style>
     .bd-placeholder-img {
       font-size: 1.125rem;
@@ -78,21 +79,12 @@
       display: block !important;
     }
 
-    .carousel-caption.banner1 {
-      position: relative; /* 부모 요소에 position: relative;를 설정하여 내부 요소의 위치를 조정할 수 있도록 합니다. */
-    }
-    
-    .carousel-caption.banner1 .btn {
-      position: absolute;
-      bottom: 20px; /* 아래에서 20px 만큼 떨어진 위치 */
-      right: 20px; /* 오른쪽에서 20px 만큼 떨어진 위치 */
-    }
   </style>
+  {% endblock %}
 
   <link href="{% static 'carousel.css' %}" rel="stylesheet">
 
 {% block content %}
-
 <main>
 
 <div id="myCarousel" class="carousel slide mb-6" data-bs-ride="carousel">
@@ -102,26 +94,24 @@
     <button type="button" data-bs-target="#myCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
   </div>
   <div class="carousel-inner">
-    <div class="carousel-item active">
-      <img src="{% static 'banner1.png' %}" class="d-block w-100" height="450px" alt="Image Caption">
+    <div class="carousel-item active" style="background-color: #c5e3ed;">
+      <img src="{% static 'banner1.png' %}" class="d-flex w-75 m-auto" height="450px" alt="Image Caption">
       <div class="container">
-        <div class="carousel-caption banner1">
-          <p><a class="btn btn-lg btn-primary" href="#">Sign up today</a></p>
+        <div class="carousel-caption text-end">
+          <a class="btn btn-lg btn-info" style="margin-right : 20px; margin-bottom: 20px; color: white;" href="{% url 'product:product_list' %}">Go Market &nbsp;<img style="width : 9px;"src="{% static 'arrow.png' %}"></a>
         </div>
       </div>
     </div>
-    <div class="carousel-item">
-      <img src="{% static 'banner_2.png' %}" class="d-block w-100" height="450px" alt="Image Caption">      
+    <div class="carousel-item" style="background-color : #fbf7ec;">
+      <img src="{% static 'banner_2.png' %}" class="d-flex w-75 m-auto text-white" height="450px" alt="Image Caption">      
       <div class="container">
         <div class="carousel-caption text-start">
-          <h1>Another example headline.</h1>
-          <p>Some representative placeholder content for the second slide of the carousel.</p>
-          <p><a class="btn btn-lg btn-primary" href="#">Learn more</a></p>
+          <p><a class="btn btn-lg btn-success" href="{% url 'feed:index' %}"> See Story &nbsp;<img style="width : 9px;"src="{% static 'arrow.png' %}"></a></p>
         </div>
       </div>
     </div>
     <div class="carousel-item">
-      <svg class="bd-placeholder-img" width="100%" height="450px" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false"><rect width="100%" height="450px" fill="var(--bs-secondary-color)"/></svg>
+      <svg class="bd-placeholder-img" width="100%" height="450px" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false"><rect width="100%" height="550px" fill="var(--bs-secondary-color)"/></svg>
       <div class="container">
         <div class="carousel-caption text-end">
           <h1>One more for good measure.</h1>
@@ -141,6 +131,29 @@
   </button>
 </div>
 
+<div class="container marketing" style="margin-top: 80px;">
 
+  <!-- Three columns of text below the carousel -->
+
+  <div class="row">
+    <div class="col-lg-4" style="text-align:center;">
+      <svg class="bd-placeholder-img rounded-circle" width="140" height="140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="var(--bs-secondary-color)"/></svg>
+      <h2 class="fw-normal">Heading</h2>
+      <p>Some representative placeholder content for the three columns of text below the carousel. This is the first column.</p>
+      <p><a class="btn btn-secondary" href="#">View details &raquo;</a></p>
+    </div><!-- /.col-lg-4 -->
+    <div class="col-lg-4" style="text-align:center;">
+      <svg class="bd-placeholder-img rounded-circle" width="140" height="140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="var(--bs-secondary-color)"/></svg>
+      <h2 class="fw-normal">Heading</h2>
+      <p>Another exciting bit of representative placeholder content. This time, we've moved on to the second column.</p>
+      <p><a class="btn btn-secondary" href="#">View details &raquo;</a></p>
+    </div><!-- /.col-lg-4 -->
+    <div class="col-lg-4" style="text-align:center;">
+      <svg class="bd-placeholder-img rounded-circle" width="140" height="140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="var(--bs-secondary-color)"/></svg>
+      <h2 class="fw-normal">Heading</h2>
+      <p>And lastly this, the third column of representative placeholder content.</p>
+      <p><a class="btn btn-secondary" href="#">View details &raquo;</a></p>
+    </div><!-- /.col-lg-4 -->
+  </div><!-- /.row -->
 
 {% endblock %}

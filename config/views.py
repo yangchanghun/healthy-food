@@ -38,19 +38,19 @@ class UserCreateDoneTV(TemplateView):
     template_name='registration/register_done.html'
 
 
-def check_duplicate(request):
-    field_type = request.GET.get('field_type')
-    field_value = request.GET.get('field_value')
+# def check_duplicate(request):
+#     field_type = request.GET.get('field_type')
+#     field_value = request.GET.get('field_value')
 
-    if field_type == 'email':
-        is_taken = User.objects.filter(email=field_value).exists()
-    elif field_type == 'nickname':
-        # 닉네임 중복 검사를 Profile 모델을 통해 수행
-        is_taken = Profile.objects.filter(nickname=field_value).exists()
-    else:
-        is_taken = False
+#     if field_type == 'email':
+#         is_taken = User.objects.filter(email=field_value).exists()
+#     elif field_type == 'nickname':
+#         # 닉네임 중복 검사를 Profile 모델을 통해 수행
+#         is_taken = Profile.objects.filter(nickname=field_value).exists()
+#     else:
+#         is_taken = False
 
-    data = {
-        'is_taken': is_taken
-    }
-    return JsonResponse(data)
+#     data = {
+#         'is_taken': is_taken
+#     }
+#     return JsonResponse(data)
