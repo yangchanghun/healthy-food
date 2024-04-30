@@ -98,7 +98,6 @@ class ProductListView(ListView):
 
         return context
     
-    
 def product_detail(request, pk):
     object = Product.objects.get(pk=pk)
     add_to_cart = AddProductForm(initial={'quantity': 1})

@@ -160,33 +160,4 @@
   </div><!-- /.row -->
 
 
-{% comment %} <div class="container_product">
-  <div class="row">
-    <h2>오늘의 상품</h2>
-    {% for product in products %}
-        <div class="col-md-4 mb-4">
-            <div class="card product-card">
-                <a href="{% url 'product:product_detail' product.id %}" class="text-dark text-decoration-none">
-                    {% if product_images|get:product.id %}
-                        <img src="{{ product_images|get:product.id }}" class="card-img-top product-image" alt="{{ product.name }} 이미지">
-                    {% else %}
-                        <!-- 기본 이미지 또는 "이미지 없음" 표시 -->
-                        <img src="https://placehold.co/300x200" class="card-img-top product-image" alt="기본 이미지"> 
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text">{{ product.description|truncatewords:20 }}</p> <!-- 설명이 길 경우 단어 수 제한 -->
-                        <p class="card-text product-price">가격: {{ product.price }}원</p>
-                    </div>
-                </a>
-            </div>
-        </div>
-    {% empty %}
-        <div class="col-12">
-            <p>표시할 제품이 없습니다.</p>
-        </div>
-    {% endfor %}
-  </div>
-</div> {% endcomment %}
-
 {% endblock %}
