@@ -6,20 +6,28 @@ from django.views.generic import ListView, CreateView
 from .models import *
 from .forms import ContentForm, ReviewContentForm, CommentForm
 from django.urls import reverse_lazy
-from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from django.http import JsonResponse
 
-@login_required
 def like_content(request, content_id):
-    content = get_object_or_404(Content, id=content_id)
-    like_qs = Like.objects.filter(user=request.user, content=content)
-
-    if like_qs.exists():
-        like_qs[0].delete()  # 이미 '좋아요'를 눌렀다면 삭제하여 '좋아요' 취소
+    if request.method == 'POST':
+        content = Content.objects.get(id=content_id)
+        user = request.user
+        if user in content.likes.all():
+            content.likes.remove(user)
+            is_liked = False
+        else:
+            content.likes.add(user)
+            is_liked = True
+        context = {
+            'likes_count': content.likes.count(),
+            'is_liked': is_liked,
+        }
+        return JsonResponse(context)
     else:
-        Like.objects.create(user=request.user, content=content)  # '좋아요' 추가
+        # 비정상적인 접근을 405 Method Not Allowed로 처리
+        return JsonResponse({'error': 'Invalid request'}, status=405)
 
-    return redirect(reverse('feed:post_detail', args=(content.id, )))
 
 class ContentListView(ListView):
     model = Content
