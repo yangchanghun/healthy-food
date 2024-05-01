@@ -1,7 +1,24 @@
 {% extends 'base.html' %}
 {% load static %}
-
 {% block content %}
+<style>
+  .image-crop {
+    width: 10rem; 
+    height: 10rem;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+  }
+
+  .image-crop img {
+    object-fit: cover;
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+  }
+</style>
 
 <div class="container my-4">
   <div class="mb-3 hstack gap-5">
@@ -11,24 +28,34 @@
     <form action="{% url 'follow:is_seller' %}">
 
       <!-- 팔로우할 사용자의 ID를 hidden input으로 전달 -->
-      <input type="submit" value="판매자 계정으로 이동" class="btn btn-light">
+      <input type="submit" value="판매자 계정으로 이동" class="btn btn-outline-success">
     </form>
     {% endif %}
   </div>
 
-  <h3>
-    <div class="mb-2"><strong>{{ user }}</strong></div>
-  </h3>
+  <div class="mb-3 hstack gap-3">
+    <div class="image-crop">
+      <img src="{{userprofile.user_image.url}}" alt="{{userprofile.nickname}}">
+    </div>
 
-  <div class="mb-3 hstack gap-1">
-    <div class="p-1">팔로워: <span class="badge bg-secondary">{{ user.followers.count }}</span></div>
-    <div class="p-1">팔로잉: <span class="badge bg-secondary">{{ user.following.count }}</span></div>
+    <div>
+    <h3><strong>{{ userprofile.nickname }}</strong></h3>
+    <p>{{user}}</p>
+  
+    <div class="hstack gap-1 my-3">
+      <div class="p-1">팔로워: <span class="badge bg-secondary">{{ user.followers.count }}</span></div>
+      <div class="p-1">팔로잉: <span class="badge bg-secondary">{{ user.following.count }}</span></div>
+    </div>
+
+    <div><a href="{% url 'orders:order_history' %}" class="btn btn-outline-success">구매 내역</a></div>
+  </div>
   </div>
 
-  <div><a href="{% url 'orders:order_history' %}" class="btn btn-light">구매 내역</a></div>
-  
   <div class="mt-5 mb-3 hstack gap-5 row">
+    <div class="hstack gap-2">
     <h4>내 게시글</h4>
+    <a href="{% url 'feed:post-create' %}" class="btn btn-outline-success">게시글 등록</a>
+  </div>
     <div class="list-group">
       {% for post in posts %}
           <a href="{% url 'feed:post_detail' post.id %}" class="list-group-item list-group-item-action flex-column align-items-start">

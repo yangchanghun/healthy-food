@@ -1,13 +1,18 @@
 {% extends 'base.html' %}
 {% load custom_filters %}
+{% load follow_extras %}
 {% load static %}
 
 {% block content %}
+
 <div class="container my-4">
 
-  <h3>
-    <div class="mb-2"><strong>{{ user }}</strong></div>
-  </h3>
+  <div class="hstack gap-2">
+    <h3><strong>{{ user }}</strong></h3>
+    {% if is_seller %}
+    <img src="{% static 'checkmark3.png' %}" style="width: 18px;">
+    {% endif %}
+  </div>
 
   <div class="mb-3 hstack gap-1">
     <div class="p-1">팔로워: <span class="badge bg-secondary">{{ user.followers.count }}</span></div>
@@ -15,14 +20,71 @@
 
     <!-- 팔로우 기능 -->
     {% if user.id != request.user.id %}
-    <form action="{% url 'follow:follow' %}" method="post">
+    <form action="{% url 'follow:follow_unfollow' user.id %}" method="post">
       {% csrf_token %}
       <!-- 팔로우할 사용자의 ID를 hidden input으로 전달 -->
       <input type="hidden" name="user_id" value="{{ user.id }}">
-      <input type="submit" value="팔로우">
+      {% if request.user|is_following:user %}
+      <input type="submit" value="팔로우 취소" class="btn btn-outline-secondary active">
+      {% else %}
+      <input type="submit" value="팔로우" class="btn btn-outline-secondary">
+      {% endif %}
     </form>
     {% endif %}
   </div>
+
+  {% if is_seller %}
+  <div class="mt-5 mb-3 hstack gap-5">
+    <h4>내 상품</h4>
+  </div>
+  <!-- 제품 목록 -->
+  <div class="row">
+    {% for product in products %}
+    <div class="col-md-4 mb-4">
+      <div class="card product-card">
+        <a href="{% url 'product:product_detail' product.id %}" class="text-dark text-decoration-none">
+          {% if product_images|get:product.id %}
+          <img src="{{ product_images|get:product.id }}" class="card-img-top product-image"
+            alt="{{ product.name }} 이미지">
+          {% else %}
+          <!-- 기본 이미지 또는 "이미지 없음" 표시 -->
+          <img src="https://placehold.co/300x200" class="card-img-top product-image" alt="기본 이미지">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ product.name }}</h5>
+            <p class="card-text">{{ product.description|truncatewords:20 }}</p> <!-- 설명이 길 경우 단어 수 제한 -->
+            <p class="card-text product-price">가격: {{ product.price }}원</p>
+          </div>
+        </a>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <p>표시할 제품이 없습니다.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="mt-5 mb-3 hstack gap-5 row">
+    <h4>받은 리뷰</h4>
+    <div class="list-group">
+      {% for review in received_reviews %}
+      <a href="{% url 'feed:post_detail' review.id %}"
+        class="list-group-item list-group-item-action flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">{{ review.title }}</h5>
+          <small>{{ review.created_at|date:"Y-m-d H:i" }}</small>
+        </div>
+        <p class="mb-1">{{ review.body_text|truncatewords:20 }}</p>
+        <small>좋아요: {{ review.likes.count }}</small>
+      </a>
+      {% empty %}
+      <p>포스트가 없습니다.</p>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
 
   <div>
     <div class="mt-5 mb-3 hstack gap-5 row">
@@ -45,9 +107,9 @@
     </div>
 
     <div class="mt-5 mb-3 hstack gap-5 row">
-      <h4>리뷰</h4>
+      <h4>{{user}}님의 리뷰</h4>
       <div class="list-group">
-        {% for review in reviews %}
+        {% for review in my_reviews %}
         <a href="{% url 'feed:post_detail' review.id %}"
           class="list-group-item list-group-item-action flex-column align-items-start">
           <div class="d-flex w-100 justify-content-between">

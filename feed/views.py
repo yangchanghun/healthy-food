@@ -99,11 +99,24 @@ def comments_delete(request, pk):
     return redirect('feed:post_detail', pk=comment.content.pk)
         
 def view_user(request, pk):
-    user = User.objects.get(pk=pk)
-    posts = Content.objects.filter(user=pk, content_type='post')
-    reviews = Content.objects.filter(user=pk, content_type='review')
-    context = {'user': user,
-                'posts': posts,
-                'reviews': reviews,
-                }
-    return render(request, 'feed/view_user_page.html', context)
+    if request.user.id != pk:
+        user = User.objects.get(pk=pk)
+        products = Product.objects.filter(seller=pk).prefetch_related('images')
+        product_images = {}
+        for product in products:
+            product_images[product.id] = product.images.first().image_url if product.images.exists() else None
+        received_reviews = Content.objects.filter(seller=pk, content_type='review')
+        posts = Content.objects.filter(user=pk, content_type='post')
+        my_reviews = Content.objects.filter(user=pk, content_type='review')
+        is_seller = User.objects.get(pk=pk).groups.filter(name='Sellers').exists()
+        context = {'user': user,
+                    'posts': posts,
+                    'my_reviews': my_reviews,
+                    'is_seller': is_seller,
+                    'products': products,
+                    'product_images': product_images,
+                    'received_reviews': received_reviews,
+                    }
+        return render(request, 'feed/view_user_page.html', context)
+    else:
+        return redirect('follow:user_detail', pk=request.user.id)

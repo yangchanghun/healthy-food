@@ -1,7 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import get_user_model
-from django.http import HttpResponseRedirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from .models import Follow
 from django.contrib.auth.models import User
@@ -25,21 +24,18 @@ class UserDV(generic.DetailView):
         context['is_seller'] = self.request.user.groups.filter(name='Sellers').exists()
         context['posts'] = Content.objects.filter(user=self.request.user, content_type='post')
         context['reviews'] = Content.objects.filter(user=self.request.user, content_type='review')
+        context['userprofile'] = self.request.user.profile
         return context
 
+# 팔로우/언팔로우 처리
 @login_required
-def following(request):
-    if request.method == 'POST':
-        # 팔로우할 사람 선택
-        user_to_follow_id = request.POST.get('user_id')
-        user_to_follow = get_user_model().objects.get(pk=user_to_follow_id)
-        # 현재 유저
-        follower = request.user
-        # 이미 팔로우하고 있는지 확인
-        if not Follow.objects.filter(follower=follower, following=user_to_follow).exists():
-            Follow.objects.create(follower=follower, following=user_to_follow)
-        return HttpResponseRedirect(reverse('feed:view_user', kwargs={'pk': user_to_follow_id}))
-    
+def follow_unfollow(request, user_id):
+    other_user = get_object_or_404(get_user_model(), pk=user_id)
+    follow, created = Follow.objects.get_or_create(follower=request.user, following=other_user)
+    # 이미 팔로우되어 있다면, 기록을 삭제(언팔로우)
+    if not created:
+        follow.delete()
+    return redirect('feed:view_user', pk=user_id)
 
 class SellerProductLV(LoginRequiredMixin, UserPassesTestMixin, generic.ListView):
     model = Product
