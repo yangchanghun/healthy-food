@@ -6,9 +6,9 @@
     max-width: 600px; 
     margin: auto; 
   }
-  .feed-image {
-    object-fit: contain; /* 변경된 부분 */
-    width: 100%; /* 추가된 부분 */
+  .carousel-item .feed-image {
+    object-fit: contain;
+    width: 100%;
     height: 500px;
   }
   .carousel-item {
@@ -17,7 +17,6 @@
   .no-underline {
     text-decoration: none; 
   }
-  /* 댓글 스타일 추가 */
   .comment-container {
     border: 1px solid #ddd;
     border-radius: 5px;
@@ -30,9 +29,6 @@
     align-items: center;
     margin-bottom: 5px;
   }
-  .comment-header h6 {
-    margin: 0;
-  }
   .comment-actions {
     display: flex;
     gap: 10px;
@@ -44,10 +40,9 @@
     cursor: pointer;
     font-size: 14px;
   }
-  /* 화살표 색상 변경 */
   .carousel-control-next-icon,
   .carousel-control-prev-icon {
-    filter: invert(1); /* 흰색에서 검정색으로 변경 */
+    filter: invert(1);
   }
 </style>
 <div class="container mt-5">
@@ -66,8 +61,8 @@
             <span class="visually-hidden">Previous</span>
           </button>
           <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
           </button>
         </div>
       {% endif %}
@@ -77,15 +72,16 @@
         <h2><a href="{% url 'feed:view_user' post.user.id %}">{{ post.user.username }}</a></h2>
         <h2>{{ post.title }}</h2>
         <p class="mt-3">{{ post.body_text }}</p>
-
-
-        {% if user in post.likes.all %}
-          <a href="{% url 'feed:like_content' post.id %}" class="no-underline">❤️</a>
-        {% else %}
-          <a href="{% url 'feed:like_content' post.id %}" class="no-underline">🤍</a>
-        {% endif %}
-        : {{ post.likes.count }}
-
+        
+        <!-- 좋아요 버튼 수정 -->
+        <a href="#" class="no-underline like-button" data-post="{{ post.id }}"> <!-- 클래스 추가 및 href 수정 -->
+          {% if user in post.likes.all %}
+            <span class="likes-count">❤️</span>
+          {% else %}
+            <span class="likes-count">🤍</span>
+          {% endif %}
+        </a>
+        : <span class="likes-count">{{ post.likes.count }}</span> <!-- 좋아요 수를 보여주는 부분 수정 -->
 
         {% if post.content_type == 'review' and post.product %}
           <hr>
@@ -128,4 +124,42 @@
       </div>
     </div>
 </div>
+<script>
+// Django에서 제공하는 CSRF 토큰 가져오기
+const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+document.addEventListener("DOMContentLoaded", function(){
+  const likeButtons = document.querySelectorAll('.like-button'); // 모든 좋아요 버튼 선택
+  
+  likeButtons.forEach(button => {
+    button.addEventListener('click', function(e){
+      e.preventDefault();
+      const postId = this.dataset.post; 
+      console.log(csrftoken);
+
+      fetch(`{%url "feed:like-content" post.id%}`, {
+        method: 'POST',
+        
+        headers: {
+          'X-CSRFToken': csrftoken,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          'postId': postId,
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        const likeButton = this;
+        const likesCountElement = likeButton.querySelector('.likes-count');
+        likesCountElement.innerText = data.is_liked ? '❤️' : '🤍';
+        likeButton.nextElementSibling.innerText = data.likes_count; // 좋아요 개수 업데이트
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    });
+  });
+});
+</script>
 {% endblock %}
