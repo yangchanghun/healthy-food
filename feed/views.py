@@ -8,6 +8,33 @@ from .forms import ContentForm, ReviewContentForm, CommentForm
 from django.urls import reverse_lazy
 from django.urls import reverse
 from django.http import JsonResponse
+from django.views.generic.edit import UpdateView
+from django.contrib import messages
+
+
+def post_delete(request, pk):
+    post = Content.objects.get(pk=pk)
+    if request.user == post.user or request.user.is_staff:  # 접근 권한 확인
+        post.delete()
+        messages.success(request, "게시글이 성공적으로 삭제되었습니다.")
+        return redirect('feed:index')
+    else:
+        messages.error(request, "게시글을 삭제할 권한이 없습니다.")
+        return redirect('feed:index')
+
+
+class PostEditView(UpdateView):
+    model = Content
+    fields = ['title']  # 수정 가능한 필드 지정
+    template_name = 'feed/post_detail.html'  # 사용할 템플릿 파일 지정
+
+    def form_valid(self, form):
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse('feed:post_detail', kwargs={'pk': self.object.pk})
+
+
 
 def like_content(request, content_id):
     if request.method == 'POST':
@@ -115,3 +142,4 @@ def view_user(request, pk):
                 'reviews': reviews,
                 }
     return render(request, 'feed/view_user_page.html', context)
+

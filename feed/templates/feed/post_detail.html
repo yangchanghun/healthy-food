@@ -69,25 +69,37 @@
         
 
       <div class="card-body">
-        <h2><a href="{% url 'feed:view_user' post.user.id %}">{{ post.user.username }}</a></h2>
+        <!-- 아래 코드에서 post.user.id 를 post.user.pk 로 변경 -->
+        <h2><a href="{% url 'feed:view_user' pk=post.user.pk %}">{{ post.user.username }}</a></h2>
         <h2>{{ post.title }}</h2>
         <p class="mt-3">{{ post.body_text }}</p>
         
         <!-- 좋아요 버튼 수정 -->
-        <a href="#" class="no-underline like-button" data-post="{{ post.id }}"> <!-- 클래스 추가 및 href 수정 -->
+        <a href="#" class="no-underline like-button" data-post="{{ post.id }}">
           {% if user in post.likes.all %}
             <span class="likes-count">❤️</span>
           {% else %}
             <span class="likes-count">🤍</span>
           {% endif %}
         </a>
-        : <span class="likes-count">{{ post.likes.count }}</span> <!-- 좋아요 수를 보여주는 부분 수정 -->
+        : <span class="likes-count">{{ post.likes.count }}</span>
 
         {% if post.content_type == 'review' and post.product %}
           <hr>
           <h5>제품 리뷰</h5>
           <p>제품명: {{ post.product.name }}</p>
           <p>판매자: {{ post.seller.username }}</p>
+        {% endif %}
+        
+        <!-- 게시글에 대한 수정 및 삭제 버튼 추가 -->
+        {% if request.user == post.user or request.user.is_staff %}
+        <div class="edit-delete-buttons">
+          <a href="{% url 'feed:post_edit' post.id %}" class="btn btn-primary">수정</a>
+          <form action="{% url 'feed:post_delete' post.id %}" method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">삭제</button>
+          </form>
+        </div>
         {% endif %}
       </div>
       <div class="card-footer text-muted">
@@ -129,7 +141,7 @@
 const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
 document.addEventListener("DOMContentLoaded", function(){
-  const likeButtons = document.querySelectorAll('.like-button'); // 모든 좋아요 버튼 선택
+  const likeButtons = document.querySelectorAll('.like-button');
   
   likeButtons.forEach(button => {
     button.addEventListener('click', function(e){
@@ -153,7 +165,7 @@ document.addEventListener("DOMContentLoaded", function(){
         const likeButton = this;
         const likesCountElement = likeButton.querySelector('.likes-count');
         likesCountElement.innerText = data.is_liked ? '❤️' : '🤍';
-        likeButton.nextElementSibling.innerText = data.likes_count; // 좋아요 개수 업데이트
+        likeButton.nextElementSibling.innerText = data.likes_count;
       })
       .catch((error) => {
         console.error('Error:', error);
