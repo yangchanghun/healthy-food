@@ -7,6 +7,10 @@
             <div class="list-group">
                 {% for post in posts %}
                     <a href="{% url 'feed:post_detail' post.id %}" class="list-group-item list-group-item-action flex-column align-items-start">
+                        <!-- 이미지 추가 -->
+                        {% for feedimage in post.feed_images.all %}
+                            <img src="{{ feedimage.image.url }}" alt="{{ post.title }}" style="max-width: 100px; max-height: 100px; margin-right: 10px;">
+                        {% endfor %}
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">{{ post.title }}</h5>
                             <small>{{ post.created_at|date:"Y-m-d H:i" }}</small>

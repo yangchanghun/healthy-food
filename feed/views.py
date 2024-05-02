@@ -11,6 +11,44 @@ from django.urls import reverse
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.contrib import messages
+
+def post_edit(request, pk):
+    post = get_object_or_404(Content, pk=pk)
+    # 요청한 사용자가 게시글을 작성한 사용자가 아니고, 스태프도 아닐 경우
+    if request.user != post.user and not request.user.is_staff:
+        # 'feed:index'로 리다이렉트
+        return redirect('feed:index')
+
+    # POST 요청을 처리하는 경우
+    if request.method == 'POST':
+        # 제출된 데이터와 파일을 포함한 폼을 생성
+        form = ContentForm(request.POST, request.FILES, instance=post)
+        # 폼이 유효할 경우
+        if form.is_valid():
+            # 폼을 저장
+            form.save()
+            # 'feed:post_detail'로 리다이렉트, pk는 게시글의 pk
+            return redirect('feed:post_detail', pk=post.pk)
+    # GET 요청을 처리하는 경우
+    else:
+        # 게시글 인스턴스를 포함한 폼을 생성
+        form = ContentForm(instance=post)
+    # 'feed/post_edit.html' 템플릿을 렌더링하고, 폼과 게시글 객체를 컨텍스트로 전달
+    return render(request, 'feed/post_edit.html', {'form': form, 'post': post})
+
+
+def post_delete(request, pk):
+    post = Content.objects.get(pk=pk)
+    if request.user == post.user or request.user.is_staff:  # 접근 권한 확인
+        post.delete()
+        messages.success(request, "게시글이 성공적으로 삭제되었습니다.")
+        return redirect('feed:index')
+    else:
+        messages.error(request, "게시글을 삭제할 권한이 없습니다.")
+        return redirect('feed:index')
+
+
 
 def like_content(request, content_id):
     if request.method == 'POST':
@@ -172,3 +210,4 @@ def view_user(request, pk):
                 'reviews': reviews,
                 }
     return render(request, 'feed/view_user_page.html', context)
+
