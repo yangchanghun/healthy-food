@@ -106,12 +106,10 @@ def view_user(request, pk):
         for product in products:
             product_images[product.id] = product.images.first().image_url if product.images.exists() else None
         received_reviews = Content.objects.filter(seller=pk, content_type='review')
-        posts = Content.objects.filter(user=pk, content_type='post')
-        my_reviews = Content.objects.filter(user=pk, content_type='review')
+        posts = Content.objects.filter(user=pk)
         is_seller = User.objects.get(pk=pk).groups.filter(name='Sellers').exists()
         context = {'user': user,
                     'posts': posts,
-                    'my_reviews': my_reviews,
                     'is_seller': is_seller,
                     'products': products,
                     'product_images': product_images,
@@ -119,4 +117,4 @@ def view_user(request, pk):
                     }
         return render(request, 'feed/view_user_page.html', context)
     else:
-        return redirect('follow:user_detail', pk=request.user.id)
+        return redirect('follow:user_detail')

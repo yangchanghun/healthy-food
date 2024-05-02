@@ -68,7 +68,7 @@
                       <i class="fas fa-user-circle"></i>&nbsp;{% firstof request.user.get_short_name request.user.get_username %}
                   </a>
                   <ul class="dropdown-menu" aria-labelledby="navbarUserDropdown">
-                    <li><a class="dropdown-item" href="{% url 'follow:user_detail' request.user.id %}">My Profile</a></li>
+                    <li><a class="dropdown-item" href="{% url 'follow:user_detail' %}">My Page</a></li>
                       <form action="{% url 'logout' %}" method="post">
                           {% csrf_token %}
                           <button type="submit" class="dropdown-item">Logout</button>
