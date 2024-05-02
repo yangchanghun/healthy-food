@@ -7,6 +7,10 @@ python manage.py create_groups 명령어 실행 후 회원가입 테스트
 <h1>2024.5.3 주의사항</h1>
 모델 변경 사항 있으니 migrate 후 테스트!!
 
+![스크린샷 2024-05-03 004213](https://github.com/Gothax/healthy-food/assets/82752784/b68a6317-8392-463e-8c28-67d48ee98e08)
+![스크린샷 2024-05-03 004232](https://github.com/Gothax/healthy-food/assets/82752784/50e79bb1-744d-487d-9293-67f9d1431b95)
+![스크린샷 2024-05-03 004255](https://github.com/Gothax/healthy-food/assets/82752784/86171c32-7657-4069-b008-90db4bedaa57)
+
 
 <h1>폴더 구조 5.3 Ver</h1>
 apps
