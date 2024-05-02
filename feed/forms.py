@@ -5,7 +5,7 @@ from django.forms import inlineformset_factory
 class ContentForm(forms.ModelForm):
     class Meta:
         model = Content
-        fields = ['title', 'body_text']
+        fields = ['title', 'body_text',]
 
     def clean(self):
         cleaned_data = super().clean()

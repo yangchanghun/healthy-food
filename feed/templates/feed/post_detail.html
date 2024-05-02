@@ -2,6 +2,30 @@
 
 {% block content %}
 <style>
+  .btn.dropdown-toggle::after {
+  content: none; /* 화살표 제거 */
+  }
+  .btn.dropdown-toggle::before {
+  content: "..."; /* 점 세 개 추가 */
+  font-size: 1.2rem; /* 점 세 개 크기 조정 */
+  color: #333; /* 점 세 개 색상 조정 */
+  }
+  .edit-delete-buttons {
+    position: absolute; /* 절대 위치 지정 */
+    top: 35px; /* 상단에서 n px 떨어진 곳에 위치 */
+    right: 0px; /* 오른쪽에서 n px 떨어진 곳에 위치 */
+    z-index: 2; /* 이미지 위에 표시되도록 z-index 설정 */
+  }
+  .btn {
+  width: auto; /* 버튼 너비를 자동으로 설정 */
+  height: 25px; /* 버튼 높이 40px */
+  line-height: 0px; /* 텍스트를 수직 중앙 정렬 */
+  background-color: white; /* 버튼 배경색을 흰색으로 변경 */
+  }
+  .edit-delete-buttons {
+    float: right; /* 오른쪽 정렬 */
+    margin-top: -35px; /* 버튼을 카드 상단 쪽으로 옮기기 */
+  }
   .custom-card {
     max-width: 600px; 
     margin: auto; 
@@ -46,16 +70,16 @@
   }
 </style>
 <div class="container mt-5">
-    <div class="card custom-card">
-      {% if post.feed_images.all %}
-        <div id="carouselExampleControls" class="carousel slide" data-bs-interval="false">
-          <div class="carousel-inner">
-            {% for image in post.feed_images.all %}
-              <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                <img src="{{ image.image.url }}" class="d-block w-100 feed-image" alt="...">
-              </div>
-            {% endfor %}
-          </div>
+  <div class="card custom-card" style="position: relative;"> <!-- 상대 위치 지정 -->
+    {% if post.feed_images.all %}
+      <div id="carouselExampleControls" class="carousel slide" data-bs-interval="false">
+        <div class="carousel-inner">
+          {% for image in post.feed_images.all %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+              <img src="{{ image.image.url }}" class="d-block w-100 feed-image" alt="...">
+            </div>
+          {% endfor %}
+        </div>
           <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
@@ -91,20 +115,26 @@
           <p>판매자: {{ post.seller.username }}</p>
         {% endif %}
         
-        <!-- 게시글에 대한 수정 및 삭제 버튼 추가 -->
+        <!-- 게시글에 대한 수정 삭제 버튼, 드롭다운 메뉴 형태로 표시 -->
         {% if request.user == post.user or request.user.is_staff %}
         <div class="edit-delete-buttons">
-          <a href="{% url 'feed:post_edit' post.id %}" class="btn btn-primary">수정</a>
-          <form action="{% url 'feed:post_delete' post.id %}" method="post" style="display: inline;">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger">삭제</button>
-          </form>
+          <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+            </button>            
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+              <li><a class="dropdown-item" href="{% url 'feed:post_edit' post.pk %}">수정</a></li>
+              <li>
+                <form action="{% url 'feed:post_delete' post.id %}" method="post" style="display: inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="dropdown-item">삭제</button>
+                </form>
+              </li>
+            </ul>
+          </div>
         </div>
         {% endif %}
-      </div>
-      <div class="card-footer text-muted">
-        <p> {{ post.created_at|date:"Y-m-d H:i" }} </p>
-      </div>
+
+
 
       <div class="card-footer">
         <h5>댓글</h5>

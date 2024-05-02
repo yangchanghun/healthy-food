@@ -8,8 +8,31 @@ from .forms import ContentForm, ReviewContentForm, CommentForm
 from django.urls import reverse_lazy
 from django.urls import reverse
 from django.http import JsonResponse
-from django.views.generic.edit import UpdateView
 from django.contrib import messages
+
+def post_edit(request, pk):
+    post = get_object_or_404(Content, pk=pk)
+    # 요청한 사용자가 게시글을 작성한 사용자가 아니고, 스태프도 아닐 경우
+    if request.user != post.user and not request.user.is_staff:
+        # 'feed:index'로 리다이렉트
+        return redirect('feed:index')
+
+    # POST 요청을 처리하는 경우
+    if request.method == 'POST':
+        # 제출된 데이터와 파일을 포함한 폼을 생성
+        form = ContentForm(request.POST, request.FILES, instance=post)
+        # 폼이 유효할 경우
+        if form.is_valid():
+            # 폼을 저장
+            form.save()
+            # 'feed:post_detail'로 리다이렉트, pk는 게시글의 pk
+            return redirect('feed:post_detail', pk=post.pk)
+    # GET 요청을 처리하는 경우
+    else:
+        # 게시글 인스턴스를 포함한 폼을 생성
+        form = ContentForm(instance=post)
+    # 'feed/post_edit.html' 템플릿을 렌더링하고, 폼과 게시글 객체를 컨텍스트로 전달
+    return render(request, 'feed/post_edit.html', {'form': form, 'post': post})
 
 
 def post_delete(request, pk):
@@ -21,18 +44,6 @@ def post_delete(request, pk):
     else:
         messages.error(request, "게시글을 삭제할 권한이 없습니다.")
         return redirect('feed:index')
-
-
-class PostEditView(UpdateView):
-    model = Content
-    fields = ['title']  # 수정 가능한 필드 지정
-    template_name = 'feed/post_detail.html'  # 사용할 템플릿 파일 지정
-
-    def form_valid(self, form):
-        return super().form_valid(form)
-    
-    def get_success_url(self):
-        return reverse('feed:post_detail', kwargs={'pk': self.object.pk})
 
 
 
