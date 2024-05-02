@@ -111,9 +111,11 @@ class ContentCreateView(CreateView):
 def add_product_info_to_session(request):
     product_id = request.GET.get('product_id')
     seller_id = request.GET.get('seller_id')
+    order_id = request.GET.get('order_id')
     # 세션에 product_id와 seller_id 저장
     request.session['product_id'] = product_id
     request.session['seller_id'] = seller_id
+    request.session['order_id'] = order_id
     return redirect('feed:review-create')
 
     
@@ -157,6 +159,9 @@ class ReviewCreateView(CreateView):
         if not user_has_purchased:
             return HttpResponseForbidden('구매한 상품만 리뷰할 수 있습니다.')
         
+
+
+        
         # 폼 데이터 저장 전 미리 인스턴스를 만들지만, DB에는 아직 저장하지 않음
         self.object = form.save(commit=False)
         self.object.user = self.request.user
@@ -164,6 +169,16 @@ class ReviewCreateView(CreateView):
         self.object.product_id = product_id
         self.object.content_type = 'review'
         self.object.save()
+        
+        # 주문 id와 product로 조회한 주문 구성요소
+        order_item = OrderItem.objects.get(
+        order__id=self.request.session.get('order_id'),  
+        product_id=product_id,
+    )
+        
+        if order_item:
+            order_item.review = self.object  
+            order_item.save()  
 
         # 이미지 처리
         images = self.request.FILES.getlist('images')  # 'images'는 템플릿에서 input 태그의 name 속성값
@@ -173,6 +188,7 @@ class ReviewCreateView(CreateView):
         # 세션에서 삭제
         del self.request.session['seller_id']
         del self.request.session['product_id']
+        del self.request.session['order_id']
         return super().form_valid(form)
     
 
