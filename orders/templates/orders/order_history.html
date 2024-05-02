@@ -22,7 +22,7 @@
                             {{ item.quantity }}개<br>
                             개당 {{ item.product.price }}원<br>
                             {% if item.review %}
-                            <a href="{% url 'feed:post_detail' item.review.id %}" class="btn btn-primary mt-3">리뷰 보러가기</a>
+                            <a href="{% url 'feed:post_detail' item.review.id %}" class="btn btn-secondary mt-3">리뷰 보러가기</a>
                             {% else %}
                                 <button type="button" class="btn btn-primary mt-3" onclick="addProductInfoToSession('{{ item.product.id }}', '{{ item.product.seller.id }}', '{{ order.id }}')">리뷰 작성하기</button>
                             {% endif %}
