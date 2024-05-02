@@ -5,7 +5,7 @@ from userprofile.models import Profile
 from django.views.generic import ListView, CreateView, DetailView
 from .models import *
 from orders.models import OrderItem
-from .forms import ContentForm, ReviewContentForm, CommentForm
+from .forms import ContentForm, CommentForm
 from django.urls import reverse_lazy
 from django.urls import reverse
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
