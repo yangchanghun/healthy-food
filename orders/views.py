@@ -3,13 +3,13 @@ from django.conf import settings
 from django.http import HttpResponse
 from .models import *
 from django.contrib.auth.decorators import login_required
-
+from cart.cart import Cart
 
 @login_required
 def create_order(request):
     # POST 요청인지 확인
     if request.method == 'POST':
-        cart = request.session[settings.CART_ID]
+        cart = Cart(request)
         user = request.user
         
         # 장바구니가 비어있는지 확인
@@ -17,16 +17,14 @@ def create_order(request):
             return HttpResponse('장바구니가 비어 있습니다.', status=400)
         
         order = Order.objects.create(
-            created_at = models.DateTimeField(auto_now_add=True),
-            user = user,
-            )
+            user=user,
+        )
         
-        for item_id, comp in cart.items():
-            quantity = comp['quantity']
+        for item in cart:  
             OrderItem.objects.create(
-                order_id=order.pk,
-                product_id=item_id,
-                quantity=quantity
+                order=order,
+                product=item['product'],  
+                quantity=item['quantity'],
             )
 
         # 장바구니 비우기 (주문이 완료된 후)
