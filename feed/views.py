@@ -2,15 +2,18 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Content, FeedImage, Like
 from django.contrib.auth.models import User
 from userprofile.models import Profile
-from django.views.generic import ListView, CreateView, DetailView
+from django.views.generic import ListView, CreateView
 from .models import *
 from orders.models import OrderItem
 from .forms import ContentForm, CommentForm
 from django.urls import reverse_lazy
 from django.urls import reverse
+from django.db.models import Count
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
+
 from django.contrib import messages
 
 def post_edit(request, pk):
@@ -192,22 +195,42 @@ class ReviewCreateView(CreateView):
         return super().form_valid(form)
     
 
+
+
 def post_detail(request, pk):
     post = get_object_or_404(Content, pk=pk)
     commentform = CommentForm()  
-    return render(request, 'feed/post_detail.html', {'post': post,'commentform':commentform})  
 
+    # 댓글을 좋아요 개수를 기준으로 정렬하여 가져옴
+    comments = post.comment_set.annotate(num_likes=Count('likes')).order_by('-num_likes')
+
+    # 가장 많은 좋아요를 받은 첫 번째 댓글을 설정
+    most_liked_comment = comments.first()
+
+    # most_liked_comment이 None이 아닌 경우에만 나머지 댓글을 날짜순으로 정렬하여 가져옴
+    other_comments = None
+    if most_liked_comment:
+        other_comments = comments.exclude(pk=most_liked_comment.pk).order_by('-created_at')
+
+    # 댓글의 총 개수 계산
+    comments_count = comments.count() #추가
+
+    return render(request, 'feed/post_detail.html', {'post': post, 'commentform': commentform, 'most_liked_comment': most_liked_comment, 'other_comments': other_comments, 'comments_count': comments_count})
+
+
+@login_required
 def comments_create(request, pk):
     if request.method == 'POST':
         content = get_object_or_404(Content, pk=pk)  
         commentform = CommentForm(request.POST) 
         if commentform.is_valid():
             comment = commentform.save(commit=False) 
-            comment.user = request.user  # 현재 사용자를 댓글 작성자로 지정
-            comment.content = content  # 게시물 번호 가져와서 게시물 지정함
-            comment.save() #DB저장
-
-    return redirect('feed:post_detail', pk=pk) 
+            comment.user = request.user  
+            comment.content = content  
+            comment.save() 
+            return redirect('feed:post_detail', pk=pk) 
+    else:
+        return redirect(reverse('login')) # 로그인안하면 로그인창으로
 
 # 댓글삭제 
 def comments_delete(request, pk):
@@ -216,7 +239,8 @@ def comments_delete(request, pk):
         comment.delete()
 
     return redirect('feed:post_detail', pk=comment.content.pk)
-        
+
+
 def view_user(request, pk):
     if request.user.id != pk:
         user = User.objects.get(pk=pk)
@@ -237,4 +261,44 @@ def view_user(request, pk):
         return render(request, 'feed/view_user_page.html', context)
     else:
         return redirect('follow:user_detail')
+        
+# 댓글수정
+from django.core.exceptions import PermissionDenied
 
+def comments_update(request, pk):
+    comment = get_object_or_404(Comment, pk=pk)
+    
+    # 현재 요청을 보낸 사용자와 댓글의 작성자를 비교하여 권한을 검사
+    if request.user != comment.user:
+        # 권한이 없는 경우 404 에러 대신에 PermissionDenied 예외 발생
+        raise PermissionDenied("댓글 수정 권한이 없습니다.")
+    
+    if request.method == "POST":
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect('feed:post_detail', pk=comment.content.pk)
+    else:
+        form = CommentForm(instance=comment)
+    return render(request, 'feed/comment_update.html', {'form': form})
+
+
+# 댓글좋아요
+@login_required
+def comment_like(request, pk):
+    comment = get_object_or_404(Comment, pk=pk)
+    if request.method == 'POST':
+        # 현재 로그인한 사용자가 해당 댓글을 이미 좋아요 했는지 확인
+        if request.user in comment.likes.all():
+            # 이미 좋아요한 경우, 좋아요 취소
+            comment.likes.remove(request.user)
+            liked = False
+        else:
+            # 좋아요 추가
+            comment.likes.add(request.user)
+            liked = True
+        # 좋아요 수를 반환
+        likes_count = comment.likes.count()
+        return JsonResponse({'liked': liked, 'likes_count': likes_count})
+    else:
+        return JsonResponse({}, status=405)  # POST 요청만 허용
