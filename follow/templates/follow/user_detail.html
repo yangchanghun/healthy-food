@@ -71,6 +71,22 @@
   </div>
 
 
+  <div class="edit-profile">
+    <div class="dropdown">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+      </button>            
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+        <li><a class="dropdown-item" href="#">프로필 수정</a></li>
+        <li>
+          <form action="#" method="post" style="display: inline;">
+            <button type="submit" class="dropdown-item">회원 탈퇴</button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+
 
   <div class="container mt-5">
     <!-- 버튼그룹 -->
@@ -81,10 +97,11 @@
 
     <!-- 내 게시글 -->
     <div id="content1" class="content">
-      <div class="mt-5 gap-5 hstack">
+      <div class="row mt-5 gx-2">
         {% for post in posts %}
+        <div class="col-sm-3 mb-5">
         <div class="card product-card" style="width: 18rem; height: 20rem;">
-        <a href="{% url 'feed:post_detail' post.id %}" class="text-dark text-decoration-none custom-link">
+          <a href="{% url 'feed:post_detail' post.id %}" class="text-dark text-decoration-none custom-link">
             {% with post.feed_images.all|first as image %}
             {% if image %}
             <!-- 이미지 크기 조정과 cover 효과 적용 -->
@@ -118,6 +135,7 @@
             {% endif %}
           </a>
         </div>
+      </div>
         {% empty %}
         <div class="col-12">
           <p>게시글이 없습니다.</p>
