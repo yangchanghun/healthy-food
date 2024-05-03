@@ -62,24 +62,6 @@ class SellerProductLV(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
         context['received_reviews'] = Content.objects.filter(seller=self.request.user.id, content_type='review')
 
         return context
-    
-# def edit_profile(request):
-#     try:
-#         profile = request.user.profile
-#     except User.profile.RelatedObjectDoesNotExist:
-#         profile = None
-
-#     if request.method == 'POST':
-#         form = ProfileForm(request.POST, request.FILES, instance=profile)
-#         if form.is_valid():
-#             # form.save() 호출 시 user 인자를 전달
-#             new_profile = form.save(user=request.user)
-#             # 성공적으로 프로필이 저장되었다면 원하는 페이지로 리다이렉트
-#             return redirect('follow:user_detail')
-#     else:
-#         form = ProfileForm(instance=profile)
-
-#     return render(request, 'follow/edit_profile.html', {'form': form})
 
 def edit_profile(request):
     try:
