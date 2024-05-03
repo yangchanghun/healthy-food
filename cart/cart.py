@@ -1,4 +1,3 @@
-from decimal import Decimal
 from urllib import request
 from django.conf import settings
 
@@ -26,15 +25,14 @@ class Cart(object):
             self.cart[str(product.id)]['product'] = product
         
         for item in self.cart.values():
-            item['price'] = Decimal(item['price'])
-            item['total_price'] = item['price'] * item['quantity']
+            item['total_price'] = int(item['price']) * int(item['quantity'])
             
             yield item
     
     def add(self, product, quantity=1, is_update=False):
         product_id = str(product.id)
         if product_id not in self.cart:
-            self.cart[product_id] = {'quantity':0, 'price':str(product.price)}
+            self.cart[product_id] = {'quantity':0, 'price':int(product.price)}
             
         if is_update:
             self.cart[product_id]['quantity'] = quantity
@@ -55,8 +53,8 @@ class Cart(object):
     
     def clear(self):
         self.session[settings.CART_ID] = {}
-        self.save()
+        self.session.modified = True
     
     def get_product_total(self):
-        total = sum(int(float(item.get('price', 0))) * int(item.get('quantity', 0)) for item in self.cart.values())
-        return total
+        return sum(int(item['price']) * int(item['quantity']) for item in self.cart.values())
+
