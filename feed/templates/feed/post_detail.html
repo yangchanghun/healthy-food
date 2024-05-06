@@ -4,12 +4,44 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
 <style>
-      /* 게시물 내용이 3줄 이상인 경우에만 더보기/접기 버튼 표시 */
-      .post-body.collapsed {
-        max-height: 60px; /* 최대 높이 설정 */
-        overflow: hidden; /* 초과 내용 숨김 */
-    }
-  /* ------------------ */
+  /* ------------------------------- */
+.expand-button {
+  display: inline-block; /* 더보기 버튼을 표시하는 스타일 */
+}
+
+.collapse-button {
+  display: none; /* 접기 버튼을 숨기는 스타일 */
+}
+/* 스크롤 바 루트처럼 안보이게 하기 위해서 */
+.modal-content::-webkit-scrollbar {
+  display: none; /* WebKit 브라우저(예: Chrome, Safari)의 스크롤바를 숨김 */
+}
+/* 모달창 수정삭제 위치 이상하게 되서 위치 조정 */
+/* 수정 삭제 아이콘 및 드롭다운 메뉴 위치 조정 */
+.modal-content .edit-delete-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 9999; /* 다른 내용 위에 표시되도록 설정 */
+}
+
+.modal-content .dropdown-menu {
+    min-width: auto; /* 드롭다운 메뉴의 최소 너비를 자동으로 조정 */
+    right: 0; /* 아이콘 오른쪽에 정렬 */
+    left: auto;
+    top: 30px; /* 수정 삭제 아이콘 아래에 표시되도록 조정 */
+}
+
+/* 드롭다운 아이템의 아이콘과 텍스트 사이의 여백을 조정 */
+.modal-content .dropdown-menu .dropdown-item i {
+    margin-right: 5px;
+}
+/* 게시물 내용이 3줄 이상인 경우에만 더보기/접기 버튼 표시 */
+.post-body.collapsed {
+  max-height: 60px; /* 최대 높이 설정 */
+  overflow: hidden; /* 초과 내용 숨김 */
+}
+/* ------------------------------------------------------ */
   #comment-text {
     resize: none;
 }
@@ -227,8 +259,8 @@
 
       <!-- ----------------- 모달 사용하여 위젯 생성------------------------------  -->
       <div class="modal fade" id="commentWidgetModal" tabindex="-1" aria-labelledby="commentWidgetModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
+        <div class="modal-dialog" style="max-width: 800px;" > <!-- 모달창 크기-->
+          <div class="modal-content " style="max-height: 800px; overflow-y: auto;" > <!-- 모달창 스크롤 -->
             <div class="modal-header">
               <h5 class="modal-title" id="commentWidgetModalLabel">댓글({{comments_count}})</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -238,11 +270,11 @@
                     <h2><a href="{% url 'feed:view_user' post.user.id %}">{{ post.user.username }}</a></h2>
                     <h2>{{ post.title }}</h2>
                     <p class="mt-3 post-body collapsed">{{ post.body_text }}</p>
-                    <!-- 게시물 내용의 더보기 버튼 -->
-                    <button class="btn btn-sm btn-secondary expand-button">더보기</button>
-                    <!-- 게시물 내용의 접기 버튼(초기에는 숨겨둠) -->
-                    <button class="btn btn-sm btn-secondary collapse-button" style="display: none;">접기</button>
-                    
+                    <!-- 게시물 내용의 더보기 버튼 (아이콘: ▾) -->
+                    <button class="btn btn-sm btn-secondary expand-button">&#x25BE;</button>
+                    <!-- 게시물 내용의 접기 버튼 (초기에는 숨겨둠, 아이콘: ▴) -->
+                    <button class="btn btn-sm btn-secondary collapse-button" style="display: none;">&#x25B4;</button>
+                                        
 
                     {% if post.content_type == 'review' and post.product %}
                         <hr>
@@ -399,65 +431,67 @@
       <!-- ----------------- 모달 생성 끝 ------------------------------  -->
 
       <!-- 게시글 댓글에서 좋아요가 많은 댓글만 표시 -->
-      {% if most_liked_comment %}
-      <div class="comment-container">
-          <!-- 최고 좋아요를 받은 댓글 표시 -->
-          <div class="comment-header">
+  {% if most_liked_comment %}
+  <!-- 최고 좋아요를 받은 댓글 -->
+  <div class="comment-container">
+      <div class="comment-header d-flex justify-content-between align-items-center">
+          <div>
               <h6>{{ most_liked_comment.user.username }}</h6>
-              <div class="comment-actions row justify-content-between align-items-center">
+              <p>{{ most_liked_comment.comment_text }}</p>
+              <div class="row align-items-center">
                   <div class="col-auto">
-                    {% if request.user == most_liked_comment.user or request.user.is_staff %}
-                    <div class="dropdown">
-                        <button class="btn btn-link dropdown-toggle-1 p-0 edit-delete-icon" type="button" id="dropdownMenuButton{{ most_liked_comment.pk }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-lg"></i>
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ most_liked_comment.pk }}">
-                            {% if request.user == most_liked_comment.user or request.user.is_staff %}
-                            <form action="{% url 'feed:comments_delete' most_liked_comment.pk %}" method="post" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="dropdown-item trash-icon"><i class="fas fa-trash-alt fa-lg"></i> 삭제</button>
-                            </form>
-                            {% endif %}
-                            {% if request.user == most_liked_comment.user or request.user.is_staff %}
-                            <a href="{% url 'feed:comments_update' most_liked_comment.pk %}" class="dropdown-item edit-icon"><i class="fas fa-edit fa-lg"></i> 수정</a>
-                            {% endif %}
-                        </div>
-                    </div>
-                  {% endif %}
+                      <button class="like-btn btn-primary" data-comment-id="{{ most_liked_comment.pk }}">
+                          {% if request.user.is_authenticated %}
+                              {% if request.user in most_liked_comment.likes.all %}
+                                  <i class="fas fa-heart text-danger"></i> <!-- 좋아요를 누른 경우 -->
+                              {% else %}
+                                  <i class="far fa-heart text-secondary"></i> <!-- 좋아요를 누르지 않은 경우 -->
+                              {% endif %}
+                          {% else %}
+                              <i class="far fa-heart text-secondary"></i> <!-- 로그인하지 않은 경우 -->
+                          {% endif %}
+                      </button>
+                  </div>
+                  <div class="col-auto">
+                      <span class="like-count">좋아요({{ most_liked_comment.likes.count }})</span> <!-- 좋아요 개수 표시 -->
                   </div>
               </div>
+              <div class="comment-date">
+                  <p>{{ most_liked_comment.created_at }}
+                      {% if most_liked_comment.created_at != most_liked_comment.updated_at %}
+                          (수정됨)
+                      {% endif %}
+                  </p>
+              </div>
           </div>
-          <p>{{ most_liked_comment.comment_text }}</p>
-          <!-- 좋아요 버튼 -->
-          <div class="row align-items-center">
-              <div class="col-auto">
-                  <button class="like-btn btn-primary" data-comment-id="{{ most_liked_comment.pk }}">
-                      {% if request.user.is_authenticated %}
-                      {% if request.user in most_liked_comment.likes.all %}
-                      <i class="fas fa-heart text-danger"></i> <!-- 좋아요를 누른 경우 -->
-                      {% else %}
-                      <i class="far fa-heart text-secondary"></i> <!-- 좋아요를 누르지 않은 경우 -->
-                      {% endif %}
-                      {% else %}
-                      <i class="far fa-heart text-secondary"></i> <!-- 로그인하지 않은 경우 -->
-                      {% endif %}
+          <div class="comment-actions">
+            {% if request.user == most_liked_comment.user or request.user.is_staff %}
+              <div class="dropdown">
+                  <button class="btn btn-link dropdown-toggle-1 p-0 edit-delete-icon" type="button" id="dropdownMenuButton{{ most_liked_comment.pk }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <i class="fas fa-ellipsis-v fa-lg"></i>
                   </button>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ most_liked_comment.pk }}">
+                      {% if request.user == most_liked_comment.user or request.user.is_staff %}
+                      <form action="{% url 'feed:comments_delete' most_liked_comment.pk %}" method="post" class="d-inline">
+                          {% csrf_token %}
+                          <button type="submit" class="dropdown-item trash-icon"><i class="fas fa-trash-alt fa-lg"></i> 삭제</button>
+                      </form>
+                      {% endif %}
+                      {% if request.user == most_liked_comment.user or request.user.is_staff %}
+                      <a href="{% url 'feed:comments_update' most_liked_comment.pk %}" class="dropdown-item edit-icon"><i class="fas fa-edit fa-lg"></i> 수정</a>
+                      {% endif %}
+                  </div>
               </div>
-              <div class="col-auto">
-                  <span class="like-count">좋아요({{ most_liked_comment.likes.count }})</span> <!-- 좋아요 개수 표시 -->
-              </div>
-              <div class="col-auto">
-                  <p class="comment-date">작성일시: {{ most_liked_comment.created_at }}</p>
-                  {% if most_liked_comment.created_at != most_liked_comment.updated_at %}
-                  <p class="comment-date">(수정됨)</p>
-                  {% endif %}
-              </div>
+            {% endif %}
           </div>
       </div>
-      {% else %}
-      <!-- 댓글이 없을 때 표시 -->
-      <p>댓글이 없습니다.</p>
-      {% endif %}
+      
+  </div>
+  {% else %}
+  <!-- 댓글이 없을 때 표시 -->
+  <p>댓글이 없습니다.</p>
+  {% endif %}
+
       
 
       <!-- 더보기 버튼 -->
@@ -550,38 +584,59 @@ document.addEventListener("DOMContentLoaded", function(){
     });
   });
 </script>
-
+<!-- 게시물 3중이상 더보기/접기 -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+      // 게시글 내용 요소
+      var postBody = document.querySelector('.post-body');
+      // 게시글 내용의 높이
+      var postBodyHeight = postBody.clientHeight;
+      // 기본 최대 높이 (3줄로 설정)
+      var maxHeight = 60;
+
+      // 게시글 내용이 최대 높이보다 클 경우 더보기 버튼 표시
+      if (postBodyHeight > maxHeight) {
+          // 최대 높이 설정
+          postBody.style.maxHeight = maxHeight + 'px';
+          // 더보기 버튼 표시
+          document.querySelector('.expand-button').style.display = 'block';
+      }
+
       // 더보기/접기 버튼 클릭 이벤트 처리
-      document.querySelectorAll('.expand-button, .collapse-button').forEach(function(button) {
-          button.addEventListener('click', function() {
-              var postBody = this.closest('.card-body').querySelector('.post-body');
-              postBody.classList.toggle('collapsed');
-              postBody.classList.toggle('expand');
-              // 더보기 버튼과 접기 버튼 표시/숨김 처리
-              this.closest('.card-body').querySelector('.expand-button').style.display = postBody.classList.contains('collapsed') ? 'inline-block' : 'none';
-              this.closest('.card-body').querySelector('.collapse-button').style.display = postBody.classList.contains('expand') ? 'inline-block' : 'none';
-          });
+      var expandButton = document.querySelector('.expand-button');
+      var collapseButton = document.querySelector('.collapse-button');
+
+      expandButton.addEventListener('click', function() {
+          // 최대 높이 해제
+          postBody.style.maxHeight = 'none';
+          // 더보기 버튼 아이콘 변경
+          expandButton.innerHTML = '&#x25B4;'; // ▴ 아이콘
+          // 더보기 버튼 숨김
+          expandButton.style.display = 'none';
+          // 접기 버튼 표시
+          collapseButton.style.display = 'block';
       });
 
-      // 각 게시물 내용의 높이를 확인하여 더보기/접기 버튼을 자동으로 처리하는 함수 호출
-      autoTogglePostBody();
+      collapseButton.addEventListener('click', function() {
+          // 최대 높이 재설정
+          postBody.style.maxHeight = maxHeight + 'px';
+          // 더보기 버튼 아이콘 변경
+          expandButton.innerHTML = '&#x25BE;'; // ▾ 아이콘
+          // 접기 버튼 숨김
+          collapseButton.style.display = 'none';
+          // 더보기 버튼 표시
+          expandButton.style.display = 'block';
+      });
   });
-
-  // 게시물 내용의 높이를 확인하여 더보기/접기 버튼을 자동으로 처리하는 함수 정의
-  function autoTogglePostBody() {
-      document.querySelectorAll('.card-body .post-body').forEach(function(postBody) {
-          // 게시물 내용의 높이를 확인하여 더보기/접기 버튼 자동 처리
-          if (postBody.clientHeight > 60) { // 게시물 내용의 높이가 3줄 이상인 경우
-              postBody.classList.add('collapsed'); // 접힌 상태로 설정
-              postBody.nextElementSibling.style.display = 'inline-block'; // 더보기 버튼 표시
-          } else {
-              postBody.nextElementSibling.style.display = 'none'; // 더보기 버튼 숨김
-          }
-      });
-  }
 </script>
+
+
+
+
+
+  
+  
+  
 
     <!-- 수정,삭제 ...아이콘에 넣기 -->
 <script>
