@@ -6,6 +6,8 @@ from .views import like_content, post_delete
 app_name='feed'
 urlpatterns = [
     path('', views.ContentListView.as_view(), name='index'),
+    
+    path('user-search/', views.user_search, name='user-search'),
     path('create/post/', views.ContentCreateView.as_view(), name='post-create'),
     path('create/review/', views.ReviewCreateView.as_view(), name='review-create'),
     path('path_to_add_product_info_to_session_view', views.add_product_info_to_session, name='add_product_info_to_session'),

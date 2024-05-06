@@ -2,6 +2,23 @@
 
 {% block content %}
 <style>
+  .user-list {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    max-height: 200px;
+    overflow-y: auto;
+    width: calc(100% - 2px); /* input 박스 크기와 맞추기 위해 */
+    z-index: 1000;
+  }
+  .user-list div {
+    padding: 10px;
+    cursor: pointer;
+  }
+  .user-list div:hover {
+    background-color: #f0f0f0;
+  }
     #root {
         width: 100%;
         margin: 0 auto;
@@ -117,16 +134,84 @@
           <img src="" alt="미리보기 이미지" class="preview">
         </div>
         <input class="file" name="images" multiple id="chooseFile" type="file" onchange="dropFile.handleFiles(this.files)" accept="image/png, image/jpeg, image/gif">
+      </div>
     </div>
     </label>
+    <div>
+      <label for="title">제목:</label>
+      <input type="text" id="title" name="title" required>
     </div>
-    {{ form.as_p }}
+
+    <div>
+      <label for="body_text">본문:</label>
+      <textarea name="body_text" id="bodyText" required></textarea>
+      
+      <div id="userList" class="user-list"></div>
+
+    </div>
+
     <button type="submit" class="btn btn-primary">저장</button>
     </form>
 </div>
 
 
   <script>
+    var userSearchUrl = '{% url "feed:user-search" %}';
+    
+    document.getElementById('bodyText').addEventListener('keyup', function(e) {
+      let inputText = e.target.value;
+      let lastAtPos = inputText.lastIndexOf('@');
+      let spacePos = inputText.indexOf(' ', lastAtPos); // @ 이후 첫 공백 위치 찾기
+    
+      // 사용자 목록 창
+      let userList = document.getElementById('userList');
+    
+      // 사용자가 선택되었는지 확인하는 변수
+      let userSelected = (spacePos > -1 && spacePos < inputText.length - 1);
+    
+      if (lastAtPos > -1 && !userSelected) { // '@'가 있고, 사용자가 이미 선택되어 뒤에 텍스트 입력이 진행되지 않을 때
+        let searchQuery = spacePos > -1 ? inputText.substring(lastAtPos + 1, spacePos) : inputText.substring(lastAtPos + 1);
+        if (searchQuery.length > 0) {  // 최소 1글자 이상 입력했을 때 검색 시작
+          fetch(`${userSearchUrl}?q=${searchQuery}`)
+            .then(response => response.json())
+            .then(data => {
+              userList.innerHTML = '';  // 이전 검색 결과 지우기
+              data.forEach(user => {
+                let userDiv = document.createElement('div');
+                userDiv.textContent = user.nickname;
+                userDiv.addEventListener('click', function() {
+                  // 사용자 선택 시 입력 필드에 사용자명 추가
+                  let currentValue = document.getElementById('bodyText').value;
+                  let newValue = currentValue.substring(0, lastAtPos) + '@' + user.nickname + ' ';
+                  document.getElementById('bodyText').value = newValue;
+                  userList.innerHTML = '';  // 사용자 목록 숨기기
+                  userList.style.display = 'none';  // 목록 창 숨기기
+                });
+                userList.appendChild(userDiv);
+              });
+    
+              if (data.length > 0) {
+                userList.style.display = 'block';  // 검색 결과가 있을 때만 목록 창 표시
+              } else {
+                userList.style.display = 'none';  // 검색 결과가 없을 때 목록 창 숨기기
+              }
+    
+              // 입력 필드 바로 아래에 userList 위치 설정
+              let rect = e.target.getBoundingClientRect();
+              userList.style.top = (rect.bottom + window.scrollY) + 'px'; // 스크롤에 따라 조정
+              userList.style.left = rect.left + 'px';
+              userList.style.width = rect.width + 'px'; // 입력 필드 너비와 맞추기
+            });
+        } else {
+          userList.style.display = 'none';  // 검색어가 없을 때 목록 창 숨기기
+        }
+      } else {
+        userList.style.display = 'none';  // '@'가 없거나 사용자가 이미 선택되었을 때 목록 창 숨기기
+      }
+    });
+    
+    
+
     function DropFile(dropAreaId, fileListId) {
         let dropArea = document.getElementById(dropAreaId);
         let fileList = document.getElementById(fileListId);

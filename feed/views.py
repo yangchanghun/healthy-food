@@ -1,9 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Content, FeedImage, Like
 from django.contrib.auth.models import User
-from userprofile.models import Profile
 from django.views.generic import ListView, CreateView
+from django.views import View
 from .models import *
+from userprofile.models import Profile
 from orders.models import OrderItem
 from .forms import ContentForm, CommentForm
 from django.urls import reverse_lazy
@@ -11,8 +11,8 @@ from django.urls import reverse
 from django.db.models import Count
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponseBadRequest
+from django.views.decorators.http import require_GET
 
 from django.contrib import messages
 
@@ -78,38 +78,50 @@ class ContentListView(ListView):
     template_name = "feed/post_all.html"
     context_object_name = 'posts'
     paginate_by = 8
+    
+@require_GET
+def user_search(request):
+    query = request.GET.get('q', '')
+    if query:
+        # users = User.objects.filter(username__icontains=query)
+        # user_list = list(users.values('username'))
+       
+        users = Profile.objects.filter(nickname__icontains=query)
+        user_list = list(users.values('nickname'))
+        return JsonResponse(user_list, safe=False)
+    return JsonResponse([], safe=False)
 
 # 일반 게시물 작성에 라우팅
-class ContentCreateView(CreateView):
-    model = Content
-    form_class = ContentForm
+class ContentCreateView(View):
     template_name = 'feed/post_create.html'
-    success_url = reverse_lazy('feed:post-create')  
+    success_url = reverse_lazy('feed:post-create')
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+    
     def post(self, request, *args, **kwargs):
-        form = self.get_form()
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-    def form_valid(self, form):
-        # 폼 데이터 저장 전 미리 인스턴스를 만들지만, DB에는 아직 저장하지 않음
-        self.object = form.save(commit=False)
-        self.object.user = self.request.user  
-        self.object.content_type = 'post'  
-        self.object.save()  # DB에 저장
-
-        # 이미지 처리
-        images = self.request.FILES.getlist('images')  # 'images'는 템플릿에서 input 태그의 name 속성값
-        for image in images:
-            FeedImage.objects.create(content=self.object, image=image)  # 각 이미지에 대해 FeedImage 인스턴스 생성 및 저장
+        title = request.POST.get('title')
+        body_text = request.POST.get('body_text')
+        images = request.FILES.getlist('images')  # 여러 이미지 파일을 리스트로 받음
         
-        return super().form_valid(form)
+        if not title or not body_text:
+            # 필수 필드가 비어있는 경우 에러 처리
+            return HttpResponseBadRequest("제목과 본문은 필수 항목입니다.")
+        
+        # Content 인스턴스 생성
+        content = Content.objects.create(
+            user=request.user,
+            title=title,
+            body_text=body_text,
+            content_type='post'
+        )
+        
+        # 이미지 처리
+        for image in images:
+            FeedImage.objects.create(content=content, image=image)
+        
+        # 성공 시 리디렉션
+        return redirect(self.success_url)
     
 def add_product_info_to_session(request):
     product_id = request.GET.get('product_id')
