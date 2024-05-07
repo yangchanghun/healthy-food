@@ -8,6 +8,7 @@ from userprofile.models import Profile
 from orders.models import OrderItem
 from .forms import ContentForm, CommentForm
 from django.urls import reverse_lazy, reverse
+from django.utils.html import escape
 from django.db.models import Count
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponseBadRequest, HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -242,12 +243,25 @@ class ReviewCreateView(CreateView):
         del self.request.session['order_id']
         return super().form_valid(form)
     
-
-
+# 본문 전체를 탐색하고 @user 를 link로 반환 -> 최적화 필요
+# detail view에서 본문을 출력하는 부분에 사용
+def convert_usernames_to_links(text):
+    words = escape(text).split()
+    for i, word in enumerate(words):
+        if word.startswith('@'):
+            username = word[1:]
+            profile = Profile.objects.filter(nickname=username).first()
+            if profile:
+                user_url = reverse('feed:view_user', kwargs={'pk': profile.user.pk})
+                words[i] = f'<a href="{user_url}">@{username}</a>'
+    return ' '.join(words)
 
 def post_detail(request, pk):
     post = get_object_or_404(Content, pk=pk)
     commentform = CommentForm()  
+    
+    # 본문에 태그된 user에 링크를 걸어줌
+    post.body_text = convert_usernames_to_links(post.body_text)
 
     # 댓글을 좋아요 개수를 기준으로 정렬하여 가져옴
     comments = post.comment_set.annotate(num_likes=Count('likes')).order_by('-num_likes')
