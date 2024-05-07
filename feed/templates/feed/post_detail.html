@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
@@ -214,8 +214,20 @@
         
 
       <div class="card-body">
-        <!-- 아래 코드에서 post.user.id 를 post.user.pk 로 변경 -->
-        <h2><a href="{% url 'feed:view_user' pk=post.user.pk %}">{{ post.user.username }}</a></h2>
+        <!-- 유저 프로필 사진과 유저네임 -->
+        <div class="d-flex align-items-center">
+            {% if post.user.profile.user_image %}
+                <a href="{% url 'feed:view_user' pk=post.user.pk %}" class="me-2">
+                    <img src="{{ post.user.profile.user_image.url }}" class="rounded-circle" style="width: 40px; height: 40px;">
+                </a>
+            {% else %}
+                <a href="{% url 'feed:view_user' pk=post.user.pk %}" class="me-2">
+                    <img src="{% static 'default_profile_pic.png' %}" class="rounded-circle" style="width: 40px; height: 40px;">
+                </a>
+            {% endif %}
+            <h2><a href="{% url 'feed:view_user' pk=post.user.pk %}">{{ post.user.username }}</a></h2>
+        </div>
+        <!-- 게시글 제목과 본문 -->
         <h2>{{ post.title }}</h2>
         <p class="mt-3">{{ post.body_text }}</p>
         
@@ -228,6 +240,7 @@
           {% endif %}
         </a>
         : <span class="likes-count">{{ post.likes.count }}</span>
+
 
         {% if post.content_type == 'review' and post.product %}
           <hr>
