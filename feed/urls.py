@@ -6,6 +6,8 @@ from .views import like_content, post_delete
 app_name='feed'
 urlpatterns = [
     path('', views.ContentListView.as_view(), name='index'),
+    
+    path('user-search/', views.user_search, name='user-search'),
     path('create/post/', views.ContentCreateView.as_view(), name='post-create'),
     path('create/review/', views.ReviewCreateView.as_view(), name='review-create'),
     path('path_to_add_product_info_to_session_view', views.add_product_info_to_session, name='add_product_info_to_session'),
@@ -20,5 +22,8 @@ urlpatterns = [
 
     path('post/<int:pk>/edit/', views.post_edit, name='post_edit'),
     path('post/delete/<int:pk>/', post_delete, name='post_delete'),
+    path('comment/update/<int:pk>/',views.comments_update,name ='comments_update'), #추가1
+    path('comment_like/<int:pk>/', views.comment_like, name='comment_like'),#추가2  
+
 
     ]

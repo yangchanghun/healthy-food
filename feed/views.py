@@ -1,16 +1,20 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Content, FeedImage, Like
 from django.contrib.auth.models import User
-from userprofile.models import Profile
-from django.views.generic import ListView, CreateView, DetailView
+from django.views.generic import ListView, CreateView
+from django.views import View
 from .models import *
+from userprofile.models import Profile
 from orders.models import OrderItem
 from .forms import ContentForm, CommentForm
 from django.urls import reverse_lazy
 from django.urls import reverse
-from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
+from django.db.models import Count
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponseBadRequest
+from django.views.decorators.http import require_GET
+from django.core.exceptions import PermissionDenied
+
 from django.contrib import messages
 
 def post_edit(request, pk):
@@ -75,38 +79,50 @@ class ContentListView(ListView):
     template_name = "feed/post_all.html"
     context_object_name = 'posts'
     paginate_by = 8
+    
+@require_GET
+def user_search(request):
+    query = request.GET.get('q', '')
+    if query:
+        # users = User.objects.filter(username__icontains=query)
+        # user_list = list(users.values('username'))
+       
+        users = Profile.objects.filter(nickname__icontains=query)
+        user_list = list(users.values('nickname'))
+        return JsonResponse(user_list, safe=False)
+    return JsonResponse([], safe=False)
 
 # 일반 게시물 작성에 라우팅
-class ContentCreateView(CreateView):
-    model = Content
-    form_class = ContentForm
+class ContentCreateView(View):
     template_name = 'feed/post_create.html'
-    success_url = reverse_lazy('feed:post-create')  
+    success_url = reverse_lazy('feed:post-create')
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+    
     def post(self, request, *args, **kwargs):
-        form = self.get_form()
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-    def form_valid(self, form):
-        # 폼 데이터 저장 전 미리 인스턴스를 만들지만, DB에는 아직 저장하지 않음
-        self.object = form.save(commit=False)
-        self.object.user = self.request.user  
-        self.object.content_type = 'post'  
-        self.object.save()  # DB에 저장
-
-        # 이미지 처리
-        images = self.request.FILES.getlist('images')  # 'images'는 템플릿에서 input 태그의 name 속성값
-        for image in images:
-            FeedImage.objects.create(content=self.object, image=image)  # 각 이미지에 대해 FeedImage 인스턴스 생성 및 저장
+        title = request.POST.get('title')
+        body_text = request.POST.get('body_text')
+        images = request.FILES.getlist('images')  # 여러 이미지 파일을 리스트로 받음
         
-        return super().form_valid(form)
+        if not title or not body_text:
+            # 필수 필드가 비어있는 경우 에러 처리
+            return HttpResponseBadRequest("제목과 본문은 필수 항목입니다.")
+        
+        # Content 인스턴스 생성
+        content = Content.objects.create(
+            user=request.user,
+            title=title,
+            body_text=body_text,
+            content_type='post'
+        )
+        
+        # 이미지 처리
+        for image in images:
+            FeedImage.objects.create(content=content, image=image)
+        
+        # 성공 시 리디렉션
+        return redirect(self.success_url)
     
 def add_product_info_to_session(request):
     product_id = request.GET.get('product_id')
@@ -192,49 +208,116 @@ class ReviewCreateView(CreateView):
         return super().form_valid(form)
     
 
+
+
 def post_detail(request, pk):
     post = get_object_or_404(Content, pk=pk)
     commentform = CommentForm()  
-    return render(request, 'feed/post_detail.html', {'post': post,'commentform':commentform})  
 
+    # 댓글을 좋아요 개수를 기준으로 정렬하여 가져옴
+    comments = post.comment_set.annotate(num_likes=Count('likes')).order_by('-num_likes')
+
+    # 가장 많은 좋아요를 받은 첫 번째 댓글을 설정
+    most_liked_comment = comments.first()
+
+    # most_liked_comment이 None이 아닌 경우에만 나머지 댓글을 날짜순으로 정렬하여 가져옴
+    other_comments = None
+    if most_liked_comment:
+        other_comments = comments.exclude(pk=most_liked_comment.pk).order_by('-created_at')
+
+    # 댓글의 총 개수 계산
+    comments_count = comments.count() #추가
+
+    return render(request, 'feed/post_detail.html', {'post': post, 'commentform': commentform, 'most_liked_comment': most_liked_comment, 'other_comments': other_comments, 'comments_count': comments_count})
+
+
+@login_required
 def comments_create(request, pk):
     if request.method == 'POST':
         content = get_object_or_404(Content, pk=pk)  
         commentform = CommentForm(request.POST) 
         if commentform.is_valid():
             comment = commentform.save(commit=False) 
-            comment.user = request.user  # 현재 사용자를 댓글 작성자로 지정
-            comment.content = content  # 게시물 번호 가져와서 게시물 지정함
-            comment.save() #DB저장
-
-    return redirect('feed:post_detail', pk=pk) 
+            comment.user = request.user  
+            comment.content = content  
+            comment.save() 
+            return redirect('feed:post_detail', pk=pk) 
+    else:
+        return redirect(reverse('login')) # 로그인안하면 로그인창으로
 
 # 댓글삭제 
 def comments_delete(request, pk):
+    if request.method == 'DELETE':
+        # 댓글 삭제 로직 구현
+        try:
+            comment = Comment.objects.get(pk=pk)
+            comment.delete()
+            return JsonResponse({'message': '댓글이 성공적으로 삭제되었습니다.'}, status=200)
+        except Comment.DoesNotExist:
+            return JsonResponse({'error': '해당 댓글을 찾을 수 없습니다.'}, status=404)
+    else:
+        return JsonResponse({'error': '잘못된 요청입니다.'}, status=405)
+
+
+def view_user(request, pk):
+    user = User.objects.get(pk=pk)
+    if user.is_active == True:
+        if request.user.id != pk:
+            products = Product.objects.filter(seller=pk).prefetch_related('images')
+            product_images = {}
+            for product in products:
+                product_images[product.id] = product.images.first().image_url if product.images.exists() else None
+            received_reviews = Content.objects.filter(seller=pk, content_type='review')
+            posts = Content.objects.filter(user=pk)
+            is_seller = User.objects.get(pk=pk).groups.filter(name='Sellers').exists()
+            context = {'user': user,
+                        'posts': posts,
+                        'is_seller': is_seller,
+                        'products': products,
+                        'product_images': product_images,
+                        'received_reviews': received_reviews,
+                        }
+            return render(request, 'feed/view_user_page.html', context)
+        else:
+            return redirect('follow:user_detail')
+    else:
+        return HttpResponseForbidden("비활성화된 유저입니다.")
+
+
+def comments_update(request, pk):
+    comment = get_object_or_404(Comment, pk=pk)
+    
+    # 현재 요청을 보낸 사용자와 댓글의 작성자를 비교하여 권한을 검사
+    if request.user != comment.user:
+        # 권한이 없는 경우 404 에러 대신에 PermissionDenied 예외 발생
+        raise PermissionDenied("댓글 수정 권한이 없습니다.")
+    
+    if request.method == "POST":
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            return redirect('feed:post_detail', pk=comment.content.pk)
+    else:
+        form = CommentForm(instance=comment)
+    return render(request, 'feed/comment_update.html', {'form': form})
+
+
+# 댓글좋아요
+@login_required
+def comment_like(request, pk):
     comment = get_object_or_404(Comment, pk=pk)
     if request.method == 'POST':
-        comment.delete()
-
-    return redirect('feed:post_detail', pk=comment.content.pk)
-        
-def view_user(request, pk):
-    if request.user.id != pk:
-        user = User.objects.get(pk=pk)
-        products = Product.objects.filter(seller=pk).prefetch_related('images')
-        product_images = {}
-        for product in products:
-            product_images[product.id] = product.images.first().image_url if product.images.exists() else None
-        received_reviews = Content.objects.filter(seller=pk, content_type='review')
-        posts = Content.objects.filter(user=pk)
-        is_seller = User.objects.get(pk=pk).groups.filter(name='Sellers').exists()
-        context = {'user': user,
-                    'posts': posts,
-                    'is_seller': is_seller,
-                    'products': products,
-                    'product_images': product_images,
-                    'received_reviews': received_reviews,
-                    }
-        return render(request, 'feed/view_user_page.html', context)
+        # 현재 로그인한 사용자가 해당 댓글을 이미 좋아요 했는지 확인
+        if request.user in comment.likes.all():
+            # 이미 좋아요한 경우, 좋아요 취소
+            comment.likes.remove(request.user)
+            liked = False
+        else:
+            # 좋아요 추가
+            comment.likes.add(request.user)
+            liked = True
+        # 좋아요 수를 반환
+        likes_count = comment.likes.count()
+        return JsonResponse({'liked': liked, 'likes_count': likes_count})
     else:
-        return redirect('follow:user_detail')
-
+        return JsonResponse({}, status=405)  # POST 요청만 허용

@@ -52,8 +52,9 @@
     <h4>내 상품</h4>
   </div>
   <!-- 제품 목록 -->
-  <div class="mt-5 gap-5 hstack">
+  <div class="row mt-5 gx-2">
     {% for product in products %}
+    <div class="col-sm-3 mb-5">
     <div class="card product-card" style="width: 18rem; height: 20rem;">
       <a href="{% url 'product:product_detail' product.id %}" class="text-dark text-decoration-none">
         {% if product_images|get:product.id %}
@@ -74,6 +75,7 @@
         </div>
       </a>
     </div>
+  </div>
     {% empty %}
     <div class="col-12">
       <p>표시할 제품이 없습니다.</p>
@@ -93,8 +95,9 @@
 
   <!-- 내 게시글 -->
   <div id="content1" class="content">
-    <div class="mt-5 gap-5 hstack">
+    <div class="row mt-5 gx-2">
       {% for post in posts %}
+      <div class="col-sm-3 mb-5">
       <a href="{% url 'feed:post_detail' post.id %}" class="text-dark text-decoration-none">
         <div class="card product-card" style="width: 18rem; height: 20rem;">
           {% with post.feed_images.all|first as image %}
@@ -129,6 +132,7 @@
           {% endif %}
         </div>
       </a>
+    </div>
       {% empty %}
       <div class="col-12">
         <p>표시할 제품이 없습니다.</p>
@@ -141,8 +145,9 @@
 
   <!-- 받은 리뷰 -->
   <div id="content2" class="content" style="display:none">
-    <div class="mt-5 gap-5 hstack">
+    <div class="row mt-5 gx-2">
       {% for review in received_reviews %}
+      <div class="col-sm-3 mb-5">
       <a href="{% url 'feed:post_detail' review.id %}" class="text-dark text-decoration-none">
         <div class="card product-card" style="width: 18rem; height: 20rem;">
           {% with post.feed_images.all|first as image %}
@@ -165,6 +170,7 @@
           </div>
         </div>
       </a>
+    </div>
       {% empty %}
       <div class="col-12">
         <p>표시할 제품이 없습니다.</p>

@@ -16,13 +16,13 @@
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
                         {% for item in order.order_items.all %}
+                        판매자: {{ item.product.seller }}<br>
                         <li class="list-group-item">
-                            판매자: {{ item.product.seller }}<br>
-                            {{ item.product.description }}<br>
+                            <strong>{{ item.product.name }}</strong><br>
                             {{ item.quantity }}개<br>
                             개당 {{ item.product.price }}원<br>
                             {% if item.review %}
-                            <a href="{% url 'feed:post_detail' item.review.id %}" class="btn btn-primary mt-3">리뷰 보러가기</a>
+                            <a href="{% url 'feed:post_detail' item.review.id %}" class="btn btn-secondary mt-3">리뷰 보러가기</a>
                             {% else %}
                                 <button type="button" class="btn btn-primary mt-3" onclick="addProductInfoToSession('{{ item.product.id }}', '{{ item.product.seller.id }}', '{{ order.id }}')">리뷰 작성하기</button>
                             {% endif %}

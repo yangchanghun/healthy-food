@@ -82,8 +82,8 @@ class ProductListView(ListView):
         category_id = self.kwargs.get('category_id')
         if category_id:
             category = get_object_or_404(Category, id=category_id)
-            return Product.objects.filter(category=category).prefetch_related('images')
-        return Product.objects.all().prefetch_related('images')
+            return Product.objects.filter(category=category, seller__is_active=True).prefetch_related('images')
+        return Product.objects.filter(seller__is_active=True).prefetch_related('images')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

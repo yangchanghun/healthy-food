@@ -3,13 +3,15 @@ from django.conf import settings
 from django.http import HttpResponse
 from .models import *
 from django.contrib.auth.decorators import login_required
-
+from itertools import groupby
+from operator import attrgetter
+from cart.cart import Cart
 
 @login_required
 def create_order(request):
     # POST 요청인지 확인
     if request.method == 'POST':
-        cart = request.session[settings.CART_ID]
+        cart = Cart(request)
         user = request.user
         
         # 장바구니가 비어있는지 확인
@@ -17,16 +19,14 @@ def create_order(request):
             return HttpResponse('장바구니가 비어 있습니다.', status=400)
         
         order = Order.objects.create(
-            created_at = models.DateTimeField(auto_now_add=True),
-            user = user,
-            )
+            user=user,
+        )
         
-        for item_id, comp in cart.items():
-            quantity = comp['quantity']
+        for item in cart:  
             OrderItem.objects.create(
-                order_id=order.pk,
-                product_id=item_id,
-                quantity=quantity
+                order=order,
+                product=item['product'],  
+                quantity=item['quantity'],
             )
 
         # 장바구니 비우기 (주문이 완료된 후)
@@ -50,6 +50,21 @@ def order_history(request):
     
     # 템플릿에 orders_with_total 리스트를 전달
     return render(request, 'orders/order_history.html', {'orders_with_total': orders_with_total})
+
+@login_required
+def sales_history(request):
+    # order_id에 따라 그룹화하기 위해 정렬
+    sold_items = OrderItem.objects.filter(product__seller=request.user).order_by('order_id').select_related('order', 'product')
+    # 각 그룹은 동일한 order_id를 가진 OrderItem들의 리스트
+    grouped_sold_items = [list(group) for key, group in groupby(sold_items, key=attrgetter('order_id'))]
+    groups_with_total = []
+    for group in grouped_sold_items:
+        total_price = 0
+        for item in group:
+            item_total_price = item.get_total_item_price()  # 이전에 정의한 get_total_item_price 메소드 사용
+            total_price += item_total_price
+        groups_with_total.append((group, total_price))
+    return render(request, 'orders/sales_history.html', {'groups_with_total': groups_with_total})
 
 
 @login_required
