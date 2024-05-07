@@ -16,9 +16,9 @@
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
                         {% for item in order.order_items.all %}
+                        판매자: {{ item.product.seller }}<br>
                         <li class="list-group-item">
-                            판매자: {{ item.product.seller }}<br>
-                            {{ item.product.description }}<br>
+                            <strong>{{ item.product.name }}</strong><br>
                             {{ item.quantity }}개<br>
                             개당 {{ item.product.price }}원<br>
                             {% if item.review %}

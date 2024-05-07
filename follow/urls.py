@@ -8,4 +8,6 @@ urlpatterns = [
     path('follow_unfollow/<int:user_id>/', follow_unfollow, name='follow_unfollow'),
     path('seller/', SellerProductLV.as_view(), name='is_seller'),
     path('edit_profile/', edit_profile, name='edit_profile'),
+    path('<int:user_id>/deactivate/', deactivate_user, name='user_deactivate'),
 ]
+
