@@ -208,7 +208,8 @@ class ReviewCreateView(CreateView):
         del self.request.session['order_id']
         return super().form_valid(form)
     
-
+# 본문 전체를 탐색하고 @user 를 link로 반환 -> 최적화 필요
+# detail view에서 본문을 출력하는 부분에 사용
 def convert_usernames_to_links(text):
     words = escape(text).split()
     for i, word in enumerate(words):
