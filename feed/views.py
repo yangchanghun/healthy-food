@@ -34,11 +34,17 @@ def post_edit(request, pk):
         form = ContentForm(request.POST, request.FILES, instance=post)
         # 폼이 유효할 경우
         if form.is_valid():
-            # 폼을 저장
-            form.save()
-            # 'feed:post_detail'로 리다이렉트, pk는 게시글의 pk
-            return redirect('feed:post_detail', pk=post.pk)
-    # GET 요청을 처리하는 경우
+            saved_post = form.save()  # 폼 데이터 저장
+
+            # 이미지 처리 로직 추가
+            images = request.FILES.getlist('images')  # images는 템플릿에서 이미지 파일 <input> 태그의 name 속성값입니다.
+            if images:
+                FeedImage.objects.filter(content=saved_post).delete()  # 기존 이미지 삭제
+                for image in images:
+                    FeedImage.objects.create(content=saved_post, image=image)  # 새 이미지 저장
+
+            messages.success(request, "게시글이 성공적으로 수정되었습니다.")
+            return redirect('feed:post_detail', pk=saved_post.pk)
     else:
         # 게시글 인스턴스를 포함한 폼을 생성
         form = ContentForm(instance=post)
