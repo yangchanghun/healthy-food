@@ -270,12 +270,14 @@ def view_user(request, pk):
             received_reviews = Content.objects.filter(seller=pk, content_type='review')
             posts = Content.objects.filter(user=pk)
             is_seller = User.objects.get(pk=pk).groups.filter(name='Sellers').exists()
+            userprofile = user.profile
             context = {'user': user,
                         'posts': posts,
                         'is_seller': is_seller,
                         'products': products,
                         'product_images': product_images,
                         'received_reviews': received_reviews,
+                        'userprofile': userprofile,
                         }
             return render(request, 'feed/view_user_page.html', context)
         else:
