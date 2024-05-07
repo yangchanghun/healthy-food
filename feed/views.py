@@ -288,21 +288,17 @@ def comments_create(request, pk):
             comment.content = content  
             comment.save() 
             return redirect('feed:post_detail', pk=pk) 
+            
     else:
         return redirect(reverse('login')) # 로그인안하면 로그인창으로
 
 # 댓글삭제 
 def comments_delete(request, pk):
-    if request.method == 'DELETE':
-        # 댓글 삭제 로직 구현
-        try:
-            comment = Comment.objects.get(pk=pk)
-            comment.delete()
-            return JsonResponse({'message': '댓글이 성공적으로 삭제되었습니다.'}, status=200)
-        except Comment.DoesNotExist:
-            return JsonResponse({'error': '해당 댓글을 찾을 수 없습니다.'}, status=404)
-    else:
-        return JsonResponse({'error': '잘못된 요청입니다.'}, status=405)
+    comment = get_object_or_404(Comment, pk=pk)
+    if request.method == 'POST':
+        comment.delete()
+
+    return redirect('feed:post_detail', pk=comment.content.pk)
 
 
 def view_user(request, pk):
