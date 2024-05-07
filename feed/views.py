@@ -13,6 +13,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponseBadRequest
 from django.views.decorators.http import require_GET
+from django.core.exceptions import PermissionDenied
 
 from django.contrib import messages
 
@@ -259,28 +260,29 @@ def comments_delete(request, pk):
 
 
 def view_user(request, pk):
-    if request.user.id != pk:
-        user = User.objects.get(pk=pk)
-        products = Product.objects.filter(seller=pk).prefetch_related('images')
-        product_images = {}
-        for product in products:
-            product_images[product.id] = product.images.first().image_url if product.images.exists() else None
-        received_reviews = Content.objects.filter(seller=pk, content_type='review')
-        posts = Content.objects.filter(user=pk)
-        is_seller = User.objects.get(pk=pk).groups.filter(name='Sellers').exists()
-        context = {'user': user,
-                    'posts': posts,
-                    'is_seller': is_seller,
-                    'products': products,
-                    'product_images': product_images,
-                    'received_reviews': received_reviews,
-                    }
-        return render(request, 'feed/view_user_page.html', context)
+    user = User.objects.get(pk=pk)
+    if user.is_active == True:
+        if request.user.id != pk:
+            products = Product.objects.filter(seller=pk).prefetch_related('images')
+            product_images = {}
+            for product in products:
+                product_images[product.id] = product.images.first().image_url if product.images.exists() else None
+            received_reviews = Content.objects.filter(seller=pk, content_type='review')
+            posts = Content.objects.filter(user=pk)
+            is_seller = User.objects.get(pk=pk).groups.filter(name='Sellers').exists()
+            context = {'user': user,
+                        'posts': posts,
+                        'is_seller': is_seller,
+                        'products': products,
+                        'product_images': product_images,
+                        'received_reviews': received_reviews,
+                        }
+            return render(request, 'feed/view_user_page.html', context)
+        else:
+            return redirect('follow:user_detail')
     else:
-        return redirect('follow:user_detail')
-        
-# 댓글수정
-from django.core.exceptions import PermissionDenied
+        return HttpResponseForbidden("비활성화된 유저입니다.")
+
 
 def comments_update(request, pk):
     comment = get_object_or_404(Comment, pk=pk)

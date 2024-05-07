@@ -1,6 +1,5 @@
-from django.db.models.query import QuerySet
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, logout
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from .models import Follow
@@ -8,15 +7,16 @@ from django.contrib.auth.models import User
 from django.views import generic
 from product.models import Product
 from feed.models import Content
-from userprofile.models import Profile
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from config.forms import ProfileForm
+from django.http import HttpResponseForbidden
 
 def index(request):
     User = get_user_model()
     users = User.objects.all()
     return render(request, 'follow/index.html', {'users': users})
 
+# 일반 회원 페이지
 class UserLV(generic.ListView):
     model = User
     template_name = 'follow/user_detail.html'
@@ -29,7 +29,6 @@ class UserLV(generic.ListView):
         context['userprofile'] = self.request.user.profile
         return context
 
-
 # 팔로우/언팔로우 처리
 @login_required
 def follow_unfollow(request, user_id):
@@ -40,6 +39,7 @@ def follow_unfollow(request, user_id):
         follow.delete()
     return redirect('feed:view_user', pk=user_id)
 
+# 구매자 페이지
 class SellerProductLV(LoginRequiredMixin, UserPassesTestMixin, generic.ListView):
     model = Product
     template_name = 'follow/seller_page.html'
@@ -63,6 +63,7 @@ class SellerProductLV(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
 
         return context
 
+# 프로필 편집
 def edit_profile(request):
     try:
         profile = request.user.profile
@@ -83,3 +84,15 @@ def edit_profile(request):
         'profile_form': profile_form,
     }
     return render(request, 'follow/edit_profile.html', context)
+
+# 회원 비활성화
+@login_required
+def deactivate_user(request, user_id):
+    if not request.user.is_superuser and request.user.id != user_id:
+        return render(request, 'errors/403.html', status=403)
+    elif request.user.id == user_id:
+        user = get_object_or_404(User, pk=user_id)
+        user.is_active = False
+        user.save()
+        logout(request)
+        return redirect('index')
