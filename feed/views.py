@@ -15,8 +15,9 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponseForbidden, HttpResponseBadRequest
 from django.views.decorators.http import require_GET
 from django.core.exceptions import PermissionDenied
-
 from django.contrib import messages
+from django.core.paginator import PageNotAnInteger, EmptyPage
+from django.template.loader import render_to_string
 
 def post_edit(request, pk):
     post = get_object_or_404(Content, pk=pk)
@@ -79,7 +80,32 @@ class ContentListView(ListView):
     model = Content
     template_name = "feed/post_all.html"
     context_object_name = 'posts'
-    paginate_by = 8
+    paginate_by = 16
+
+    def get_queryset(self):
+        # 'created_at' 필드를 기준으로 역순으로 정렬합니다. 실제 필드명에 맞게 변경해 주세요.
+        return Content.objects.all().order_by('-created_at')
+
+    def get(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            self.object_list = self.get_queryset()
+            page = request.GET.get('page', 1)
+            paginator = self.get_paginator(self.object_list, self.paginate_by)
+
+            try:
+                posts = paginator.page(int(page))
+            except PageNotAnInteger:
+                posts = paginator.page(1)
+            except EmptyPage:
+                posts = []
+
+            post_data = []
+            for post in posts:
+                post_data.append(render_to_string('feed/post_card.html', {'post': post}, request=request))
+
+            return JsonResponse({'posts': post_data}, safe=False)
+
+        return super().get(request, *args, **kwargs)
     
 @require_GET
 def user_search(request):
