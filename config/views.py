@@ -5,9 +5,11 @@ from .forms import CustomUserCreationForm, ProfileForm
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from userprofile.models import Profile
+from product.models import Product
 
 def index(request):
-    return render(request, 'home.html')
+    products = Product.objects.all()
+    return render(request, 'home.html', {'products': products})
 
 def login(request) :
     return render(request, 'registration/login.html')
@@ -48,5 +50,12 @@ def check_duplicate(request):
     }
     return JsonResponse(data)
 
+def user_profile_image(request):
+    if request.user.is_authenticated:
+        user_profile = Profile.objects.get(user=request.user)
+        return JsonResponse({'user_image_url': user_profile.user_image.url})
+    return JsonResponse({'user_image_url': None})
+
 class UserCreateDoneTV(TemplateView):
     template_name='registration/register_done.html'
+

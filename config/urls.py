@@ -19,18 +19,20 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 from . import views
-
+from product import views as product_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
+    path('', product_views.load_product, name='load_product'),
     # 로그인, 회원가입
     path('login/', views.login, name='login'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/register/', views.register_user, name='register'),
     path('accounts/register/done/', views.UserCreateDoneTV.as_view(), name='register_done'),
     path('check_duplicate/', views.check_duplicate, name='check_duplicate'),
-    
+    path('user_profile_image/', views.user_profile_image, name='user_profile_image'),
+
     # 팔로우, 팔로잉
     path('user/', include('follow.urls')),
     # 상품

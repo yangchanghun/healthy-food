@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% load custom_filters %}
+{% load static %}
+
 {% block content %}
     <style>
         .product-card {
@@ -10,14 +12,28 @@
             transform: scale(1.05); /* 마우스 오버시 카드 확대 */
             box-shadow: 0 4px 8px rgba(0,0,0,.1); /* 그림자 효과 */
         }
-        .custom-link {
-        display: block;
-        width: 100%; /* 혹은 필요에 따라 조절할 수 있습니다. */
-        height: 100%; /* `<a>` 태그의 크기를 강제로 조절할 필요가 있다면 이를 추가하세요. */
-    }
+        .product-image {
+            height: 200px; /* 이미지 높이 고정 */
+            object-fit: cover; /* 이미지 비율 유지 */
+        }
+        .card-body {
+            height: 180px; /* 카드 바디 높이 고정 */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* 내용물 간격 조정 */
+        }
+        .card-text {
+            font-size: 14px; /* 폰트 크기 조정 */
+        }
+        .product-price {
+            font-weight: bold; /* 가격 굵게 */
+        }
     </style>
     
-    <div class="container mt-5">
+    <div class="container mt-3">
+        <div class="banner mb-3">
+            <img src='{% static 'p_banner.jpg' %}' class="w-100">
+        </div>
         <!-- 카테고리 목록 -->
         <div class="mb-3">
             <a href="{% url 'product:product_list' %}" class="btn btn-primary">전체</a>
@@ -59,7 +75,6 @@
             </div>
             {% endfor %}
         </div>
-
     </div>
 
     <!-- Optional JavaScript -->
