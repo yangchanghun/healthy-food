@@ -110,7 +110,7 @@
                 <h4><span class="badge text-bg-success mb-2">{{ object.category.name }}</span></h4>
                 <!-- 판매자 뱃지 클릭 시 판매자 프로필로 이동 -->
                 <div class="seller">
-                    <a href="{% url 'feed:view_user' pk=user.pk %}">
+                    <a href="{% url 'feed:view_user' pk=object.seller_id %}">
                     <h4><span class="badge rounded-pill text-bg-info text-white">판매자: {{ object.seller.username }}</span></h4>
                     </a>
                 </div>
