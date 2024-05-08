@@ -104,7 +104,7 @@ def product_detail(request, pk):
     
     context = {
         'object':object,
-        'add_to_cart': add_to_cart
+        'add_to_cart': add_to_cart,
     }
     return render(request, 'product/product_detail.html', context,)
 

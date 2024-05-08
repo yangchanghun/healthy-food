@@ -19,7 +19,7 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 from . import views
-
+from product import views as product_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,7 +30,8 @@ urlpatterns = [
     path('accounts/register/', views.register_user, name='register'),
     path('accounts/register/done/', views.UserCreateDoneTV.as_view(), name='register_done'),
     path('check_duplicate/', views.check_duplicate, name='check_duplicate'),
-    
+    path('user_profile_image/', views.user_profile_image, name='user_profile_image'),
+
     # 팔로우, 팔로잉
     path('user/', include('follow.urls')),
     # 상품
