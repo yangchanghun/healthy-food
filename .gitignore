@@ -7,8 +7,8 @@ __pycache__/
 # C extensions
 *.so
 
-media/feed_images/*
-media/user_images/*
+# media/feed_images/*
+# media/user_images/*
 
 # Distribution / packaging
 .Python
