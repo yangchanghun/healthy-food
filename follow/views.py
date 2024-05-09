@@ -9,7 +9,7 @@ from product.models import Product
 from feed.models import Content
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from config.forms import ProfileForm
-
+from django.core.exceptions import ObjectDoesNotExist
 
 def index(request):
     User = get_user_model()
@@ -23,10 +23,15 @@ class UserLV(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # 사용자가 판매자 그룹에 속해있는지 확인
         context['is_seller'] = self.request.user.groups.filter(name='Sellers').exists()
         context['posts'] = Content.objects.filter(user=self.request.user)
-        context['userprofile'] = self.request.user.profile
+        
+        # 사용자 프로필에 대한 예외 처리
+        try:
+            context['userprofile'] = self.request.user.profile
+        except ObjectDoesNotExist:
+            context['userprofile'] = None  # 또는 적절한 대체값 설정
+        
         return context
 
 # 팔로우/언팔로우 처리
