@@ -181,7 +181,7 @@
       <div class="col-sm-3 mb-5">
       <a href="{% url 'feed:post_detail' review.id %}" class="text-dark text-decoration-none">
         <div class="card product-card" style="width: 18rem; height: 20rem;">
-          {% with post.feed_images.all|first as image %}
+          {% with review.feed_images.all|first as image %}
           {% if image %}
           <div style="height: 50%; overflow: hidden;">
             <img src="{{ image.image.url }}" class="card-img-top" alt="..."
