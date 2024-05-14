@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'sales',
     'userprofile',
     'widget_tweaks',
+    'drf_yasg',
     
 ]
 
