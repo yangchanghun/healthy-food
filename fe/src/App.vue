@@ -33,10 +33,18 @@
                 </div>
 
                 <div class="menu-right">
-                    <a href="#">
-                        <img src="https://i.pravatar.cc/40?img=70" class="rounded-full">
-                    </a>
+                    <template v-if="userStore.user.isAuthenticated">
+                        <a href="#">
+                            <img src="https://i.pravatar.cc/40?img=70" class="rounded-full">
+                        </a>
+                    </template>
+
+                    <template v-else>
+                        <RouterLink to="/login" class="mr-4 py-4 px-6 bg-gray-600 text-white rounded-lg">Log in</RouterLink>
+                        <RouterLink to="/signup" class="py-4 px-6 bg-purple-600 text-white rounded-lg">Sign up</RouterLink>
+                    </template>
                 </div>
+
             </div>
         </div>
     </nav>
@@ -44,4 +52,40 @@
     <main class="px-8 py-6 bg-gray-100">
         <RouterView />
     </main>
+
+    <Toast />
+
 </template>
+
+
+<script>
+    import axios from 'axios'
+    import Toast from '@/components/Toast.vue'
+    import { useUserStore } from '@/stores/user'
+
+    export default {
+        setup() {
+            const userStore = useUserStore()
+
+            return {
+                userStore
+            }
+        },
+
+        components: {
+            Toast
+        },
+
+        beforeCreate() {
+            this.userStore.initStore()
+
+            const token = this.userStore.user.access
+
+            if (token) {
+                axios.defaults.headers.common["Authorization"] = "Bearer " + token;
+            } else {
+                axios.defaults.headers.common["Authorization"] = "";
+            }
+        }
+    }
+</script>
