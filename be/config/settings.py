@@ -57,8 +57,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-    'cart',
     'account',
+    'post',
     'widget_tweaks',
     'drf_yasg',
     'corsheaders',
@@ -89,7 +89,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'cart.context_processors.cart_context',  # Context processor 추가
+                # 'cart.context_processors.cart_context',  # Context processor 추가
             ],
         },
     },
@@ -155,7 +155,7 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CART_ID = 'cart_item'
+# CART_ID = 'cart_item'
 
 LOGIN_REDIRECT_URL='/'
 LOGOUT_REDIRECT_URL='/'
