@@ -34,7 +34,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=255, blank=True, default='')
     user_image = models.ImageField(upload_to='user_image', blank=True, null=True, default='default_profile_image.png')
 
-    nickname = models.CharField(max_length=30, unique=True)
+    # nickname = models.CharField(max_length=30, unique=True)
+    nickname = models.CharField(max_length=30)
     phone_number = models.CharField(max_length=15)
     address = models.CharField(max_length=100)
     detailed_address = models.CharField(max_length=100)
