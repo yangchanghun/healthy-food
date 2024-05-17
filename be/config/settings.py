@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'account',
     'post',
+    'search',
     'widget_tweaks',
     'drf_yasg',
     'corsheaders',
