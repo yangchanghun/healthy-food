@@ -40,6 +40,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     address = models.CharField(max_length=100)
     detailed_address = models.CharField(max_length=100)
     is_seller = models.BooleanField(default=False)  # 판매자 여부
+    following = models.ManyToManyField('self', symmetrical=False, related_name='followers')
+
 
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
