@@ -8,7 +8,8 @@
                 <p><strong>{{ user.name }}</strong></p>
 
                 <div class="mt-6 flex space-x-8 justify-around">
-                    <p class="text-xs text-gray-500">182 friends</p>
+                    <p class="text-xs text-gray-500"> {{ user.followers_count }} followers</p>
+                    <p class="text-xs text-gray-500"> {{ user.following_count }} following</p>
                     <p class="text-xs text-gray-500">120 posts</p>
                 </div>
 
@@ -28,13 +29,13 @@
                         Unfollow
                     </button>
                 
-                    <!-- <button 
+                    <button 
                         class="inline-block py-4 px-3 bg-red-600 text-xs text-white rounded-lg" 
                         @click="logout"
                         v-if="userStore.user.id === user.id"
                     >
                         Log out
-                    </button> -->
+                    </button>
                 </div>
 
 
@@ -148,8 +149,10 @@ export default {
 
                     if (response.data.message === 'unfollow') {
                         this.isFollowing = false;
+                        this.user.followers_count -= 1
                     } else {
                         this.isFollowing = true;
+                        this.user.followers_count += 1
                     }
                 })
                 .catch(error => {
@@ -187,6 +190,14 @@ export default {
                 .catch(error => {
                     console.log('error', error)
                 })
+        },
+
+        logout() {
+            console.log('Log out')
+
+            this.userStore.removeToken()
+
+            this.$router.push('/login')
         }
     }
 }

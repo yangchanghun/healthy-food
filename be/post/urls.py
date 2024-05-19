@@ -1,8 +1,12 @@
 from django.urls import path
 from . import api
 
+# config path('api/posts/', include('post.urls')),
 urlpatterns = [
     path('', api.post_list, name='post_list'),
     path('profile/<uuid:id>/', api.post_list_profile, name='post_list_profile'),
+    
     path('create/', api.post_create, name='post_create'),
+    path('<uuid:pk>/like/', api.post_like, name='post_like'),
+    
 ]
