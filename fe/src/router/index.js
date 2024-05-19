@@ -6,6 +6,8 @@ import LoginView from '../views/LoginView.vue'
 import MessagesView from '../views/MessagesView.vue'
 import SearchView from '../views/SearchView.vue'
 import ProfileView from '../views/ProfileView.vue'
+import PostView from '../views/PostView.vue'
+import TrendView from '../views/TrendView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +46,16 @@ const router = createRouter({
       path: '/profile/:id',
       name: 'profile',
       component: ProfileView
+    },
+    {
+      path: '/:id',
+      name: 'postview',
+      component: PostView
+    },
+    {
+      path: '/trends/:id',
+      name: 'trendview',
+      component: TrendView
     },
     {
       path: '/about',

@@ -10,7 +10,8 @@
                 <div class="mt-6 flex space-x-8 justify-around">
                     <p class="text-xs text-gray-500"> {{ user.followers_count }} followers</p>
                     <p class="text-xs text-gray-500"> {{ user.following_count }} following</p>
-                    <p class="text-xs text-gray-500">120 posts</p>
+                    <p class="text-xs text-gray-500">{{ user.posts_count }} posts</p>
+
                 </div>
 
                 <div class="mt-6">

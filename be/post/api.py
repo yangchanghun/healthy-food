@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.db.models import Count
 
 from account.models import User
 from account.serializers import UserSerializer
-from .serializers import PostSerializer
-from .models import Post, Like
+from .serializers import PostSerializer, PostDetailSerializer, CommentSerializer, TrendSerializer
+from .models import Post, Like, Comment, Trend
 from .forms import PostForm
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -19,8 +20,17 @@ def post_list(request):
 
 
 @api_view(['GET'])
+def post_detail(request, pk):
+    post = Post.objects.annotate(comments_count=Count('comments')).get(pk=pk)
+
+    return JsonResponse({
+        'post': PostDetailSerializer(post).data
+    })
+
+
+@api_view(['GET'])
 def post_list_profile(request, id):
-    user = User.objects.get(pk=id)
+    user = User.objects.annotate(posts_count=Count('posts')).get(pk=id)
     posts = Post.objects.filter(created_by_id=id)
 
     posts_serializer = PostSerializer(posts, many=True)
@@ -62,3 +72,18 @@ def post_like(request, pk):
         return JsonResponse({'message': 'like created'})
     else:
         return JsonResponse({'message': 'post already liked'})
+    
+    
+@api_view(['POST'])
+def post_create_comment(request, pk):
+    comment = Comment.objects.create(body=request.data.get('body'), created_by=request.user, post=Post.objects.get(pk=pk))
+    serializer = CommentSerializer(comment)
+
+    return JsonResponse(serializer.data, safe=False)
+
+
+@api_view(['GET'])
+def get_trends(request):
+    serializer = TrendSerializer(Trend.objects.all(), many=True)
+
+    return JsonResponse(serializer.data, safe=False)
