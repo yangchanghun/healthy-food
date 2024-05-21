@@ -3,11 +3,12 @@ import HomeView from '../views/HomeView.vue'
 import FeedView from '../views/FeedView.vue'
 import SignupView from '../views/SignupView.vue'
 import LoginView from '../views/LoginView.vue'
-import MessagesView from '../views/MessagesView.vue'
 import SearchView from '../views/SearchView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import PostView from '../views/PostView.vue'
 import TrendView from '../views/TrendView.vue'
+import EditProfileView from '../views/EditProfileView.vue'
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,11 +34,6 @@ const router = createRouter({
       component: LoginView
     },
     {
-      path: '/messages',
-      name: 'messages',
-      component: MessagesView
-    },
-    {
       path: '/search',
       name: 'search',
       component: SearchView
@@ -56,6 +52,11 @@ const router = createRouter({
       path: '/trends/:id',
       name: 'trendview',
       component: TrendView
+    },
+    {
+      path: '/profile/edit',
+      name: 'editprofile',
+      component: EditProfileView
     },
     {
       path: '/about',

@@ -55,3 +55,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     EMAIL_FIELD = 'email'
     REQUIRED_FIELDS = []
+    
+    def get_userimage(self):
+        return 'http://127.0.0.1:8000' + self.user_image.url

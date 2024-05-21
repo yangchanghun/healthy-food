@@ -2,7 +2,7 @@ from django.http import JsonResponse
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
-from .forms import SignupForm
+from .forms import SignupForm, ProfileForm
 from .models import User
 
 @api_view(['GET'])
@@ -11,6 +11,7 @@ def me(request):
         'id': request.user.id,
         'name': request.user.name,
         'email': request.user.email,
+        'user_image': request.user.get_userimage(),
     })
 
 
@@ -60,3 +61,22 @@ def check_follow(request, pk):
         return JsonResponse({'isFollowing': True})
     else:
         return JsonResponse({'isFollowing': False})
+    
+@api_view(['POST'])
+def editprofile(request):
+    user = request.user
+    name = request.data.get('name')
+    
+    if User.objects.exclude(id=user.id).filter(name=name).exists():
+        return JsonResponse({'message': 'nickname already exists'})
+    
+    else:
+        print(request.FILES)
+        print(request.POST)
+
+        form = ProfileForm(request.POST, request.FILES, instance=user)
+
+        if form.is_valid():
+            form.save()
+
+        return JsonResponse({'message': 'information updated'})

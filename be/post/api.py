@@ -15,6 +15,12 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 # @permission_classes([])
 def post_list(request):
     posts = Post.objects.all()
+    
+    trend = request.GET.get('trend', '')
+
+    if trend:
+        posts = posts.filter(body__icontains='#' + trend)
+        
     serializer = PostSerializer(posts, many=True)
     return JsonResponse(serializer.data, safe=False)
 
@@ -63,7 +69,6 @@ def post_like(request, pk):
 
     if not post.likes.filter(created_by=request.user):
         like = Like.objects.create(created_by=request.user)
-
         post = Post.objects.get(pk=pk)
         post.likes_count = post.likes_count + 1
         post.likes.add(like)
@@ -71,7 +76,22 @@ def post_like(request, pk):
 
         return JsonResponse({'message': 'like created'})
     else:
-        return JsonResponse({'message': 'post already liked'})
+        like = Like.objects.filter(created_by=request.user, post=pk).first()
+        post = Post.objects.get(pk=pk)
+        post.likes.remove(like)
+        post.likes_count = post.likes_count - 1
+        post.save()
+        like.delete()
+
+        return JsonResponse({'message': 'like canceled'})
+    
+
+@api_view(['POST'])
+def check_liked(request, pk):
+    post = Post.objects.get(pk=pk)    
+    me = request.user
+    is_liked = Like.objects.filter(created_by=me, post=post).exists()
+    return JsonResponse({'isLiked': is_liked})
     
     
 @api_view(['POST'])

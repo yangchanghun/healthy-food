@@ -3,7 +3,7 @@
         
         <div class="main-left col-span-1">
             <div class="p-4 bg-white border border-gray-200 text-center rounded-lg">
-                <img src="https://i.pravatar.cc/300?img=70" class="mb-6 rounded-full">
+                <img :src="user.get_userimage" class="mb-6 rounded-full">
                 
                 <p><strong>{{ user.name }}</strong></p>
 
@@ -37,6 +37,15 @@
                     >
                         Log out
                     </button>
+
+                    <RouterLink 
+                        class="inline-block mr-2 py-4 px-3 bg-blue-600 text-xs text-white rounded-lg" 
+                        to="/profile/edit"
+                        v-if="userStore.user.id === user.id"
+                    >
+                        Edit profile
+                    </RouterLink>
+
                 </div>
 
 
@@ -140,7 +149,7 @@ export default {
             .catch(error => {
                 console.error('Follow status check error', error);
             });
-    },
+        },
 
         sendFollow() {
             axios
