@@ -19,8 +19,8 @@
             <div class="p-12 bg-white border border-gray-200 rounded-lg">
                 <form class="space-y-6" v-on:submit.prevent="submitForm">
                     <div>
-                        <label>Name</label><br>
-                        <input type="text" v-model="form.name" placeholder="Your full name" class="w-full mt-2 py-4 px-6 border border-gray-200 rounded-lg">
+                        <label>Nickname</label><br>
+                        <input type="text" v-model="form.name" placeholder="@" class="w-full mt-2 py-4 px-6 border border-gray-200 rounded-lg">
                     </div>
 
                     <div>
@@ -111,7 +111,10 @@ export default {
                             this.form.password1 = ''
                             this.form.password2 = ''
                         } else {
-                            this.toastStore.showToast(5000, 'Something went wrong. Please try again', 'bg-red-300')
+                            const data = JSON.parse(response.data.message)
+                            for (const key in data){
+                                this.errors.push(data[key][0].message)
+                            }
                         }
                     })
                     .catch(error => {

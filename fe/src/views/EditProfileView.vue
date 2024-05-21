@@ -93,6 +93,8 @@ export default {
                             this.userStore.setUserInfo({
                                 id: this.userStore.user.id,
                                 name: this.form.name,
+                                email: this.userStore.user.email,
+                                user_image: response.data.user.get_userimage
                             })
 
                             this.$router.back()

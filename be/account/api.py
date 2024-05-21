@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 
 from .forms import SignupForm, ProfileForm
 from .models import User
+from .serializers import UserSerializer
 
 @api_view(['GET'])
 def me(request):
@@ -34,9 +35,9 @@ def signup(request):
 
         # 이메일 확인 로직 추가
     else:
-        message = 'error'
-
-    return JsonResponse({'message': message})
+        message = form.errors.as_json()
+        
+    return JsonResponse({'message': message}, safe=False)
 
 
 @api_view(['POST'])
@@ -71,12 +72,11 @@ def editprofile(request):
         return JsonResponse({'message': 'nickname already exists'})
     
     else:
-        print(request.FILES)
-        print(request.POST)
-
         form = ProfileForm(request.POST, request.FILES, instance=user)
 
         if form.is_valid():
             form.save()
 
-        return JsonResponse({'message': 'information updated'})
+        serializer = UserSerializer(user)
+        
+        return JsonResponse({'message': 'information updated', 'user': serializer.data})

@@ -31,7 +31,7 @@ class CustomUserManager(UserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
-    name = models.CharField(max_length=255, blank=True, default='')
+    name = models.CharField(max_length=255, blank=True, default='', unique=True)
     user_image = models.ImageField(upload_to='user_image', blank=True, null=True, default='default_profile_image.png')
 
     # nickname = models.CharField(max_length=30, unique=True)
