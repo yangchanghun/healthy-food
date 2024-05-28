@@ -1,13 +1,14 @@
 <template>
     <div class="max-w-7xl mx-auto grid grid-cols-4 gap-4">
-        <div class="main-center col-span-2 space-y-4">
-            <div 
-                class="p-4 bg-white border border-gray-200 rounded-lg"
-                v-for="post in posts"
+
+        <div class="main-center col-span-3 grid grid-cols-3 gap-4">
+            <RouterLink :to="{name:'postview', params: {id: post.id}}" 
+                class="space-y-4" 
+                v-for="post in posts" 
                 v-bind:key="post.id"
             >
-                <FeedItem v-bind:post="post" />
-            </div>
+                <FeedListItem v-bind:post="post" />
+            </RouterLink>
         </div>
 
         <div class="main-right col-span-1 space-y-4">
@@ -22,7 +23,7 @@
 import axios from 'axios'
 import PeopleYouMayKnow from '../components/PeopleYouMayKnow.vue'
 import Trends from '../components/Trends.vue'
-import FeedItem from '../components/FeedItem.vue'
+import FeedListItem from '../components/FeedListItem.vue'
 
 export default {
     name: 'FeedView',
@@ -30,7 +31,7 @@ export default {
     components: {
         PeopleYouMayKnow,
         Trends,
-        FeedItem,
+        FeedListItem,
     },
 
     data() {
