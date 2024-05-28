@@ -15,8 +15,10 @@ SECRET_KEY = 'django-insecure-_c^(=2r*!dn*u-z_83fq+eg24wlw$hvy=%gq%2&gkrzdnvemc1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
+# production시 여기 docker container or ip
+WEBSITE_URL = 'http://127.0.0.1:8000'
 
 # Application definition
 
@@ -35,14 +37,19 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     )
 }
+
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+# production 단계에서 frontend container
 
 # CORS_ALLOWED_ORIGINS = [
 #     "http://127.0.0.1:5173",
 # ]
 
-CORS_ALLOW_ALL_ORIGINS = True
 
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:5173",
@@ -101,6 +108,8 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+
+# production시 postgres
 
 DATABASES = {
     'default': {

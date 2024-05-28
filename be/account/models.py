@@ -2,7 +2,7 @@ from django.db import models
 import uuid
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 from django.utils import timezone
-
+from django.conf import settings
 
 
 class CustomUserManager(UserManager):
@@ -57,4 +57,4 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = []
     
     def get_userimage(self):
-        return 'http://127.0.0.1:8000' + self.user_image.url
+        return settings.WEBSITE_URL + self.user_image.url
