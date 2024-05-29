@@ -34,14 +34,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=255, blank=True, default='', unique=True) #nickname
     user_image = models.ImageField(upload_to='user_image', blank=True, null=True, default='default_profile_image.png')
 
-    # nickname = models.CharField(max_length=30, unique=True)
-    nickname = models.CharField(max_length=30)
+    # 가입 후 주문할때 받는 영역
+    real_name = models.CharField(max_length=15, blank=True)
     phone_number = models.CharField(max_length=15)
     address = models.CharField(max_length=100)
     detailed_address = models.CharField(max_length=100)
     is_seller = models.BooleanField(default=False)  # 판매자 여부
-    following = models.ManyToManyField('self', symmetrical=False, related_name='followers')
+    business_number = models.CharField(max_length=100, blank=True)
 
+    following = models.ManyToManyField('self', symmetrical=False, related_name='followers')
 
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)

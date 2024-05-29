@@ -1,4 +1,5 @@
 <template>
+<div>
     <nav class="py-10 px-8 border-b border-gray-200">
         <div class="max-w-7xl mx-auto">
             <div class="flex items-center justify-between">
@@ -33,7 +34,17 @@
                 </div>
 
                 <div class="menu-right">
+
+
                     <template v-if="userStore.user.isAuthenticated">
+                        <div>
+                            <ModalView v-if="isModalViewed" @close-modal="isModalViewed = false">
+                                <FeedForm 
+                                    :user="user"
+                                />
+                            </ModalView>
+                            <button @click="isModalViewed = true">Open Modal</button>
+                        </div>
                         <RouterLink :to="{name: 'profile', params:{'id': userStore.user.id}}">
                             <img :src="userStore.user.user_image" class="w-11 rounded-full">
                         </RouterLink>
@@ -54,7 +65,7 @@
     </main>
 
     <Toast />
-
+</div>
 </template>
 
 
@@ -62,6 +73,8 @@
     import axios from 'axios'
     import Toast from '@/components/Toast.vue'
     import { useUserStore } from '@/stores/user'
+    import FeedForm from '@/components/FeedForm.vue';
+    import ModalView from '@/components/ModalView.vue';
 
     export default {
         setup() {
@@ -72,8 +85,16 @@
             }
         },
 
+        data() {    
+            return {
+                isModalViewed: false,
+            };
+        },
+
         components: {
-            Toast
+            Toast,
+            FeedForm,
+            ModalView,
         },
 
         beforeCreate() {

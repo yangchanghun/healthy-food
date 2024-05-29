@@ -143,6 +143,7 @@ export default {
                     console.log(response.data)
 
                     this.toastStore.showToast(5000, 'The post was deleted', 'bg-emerald-500')
+                    this.$router.push({ name: 'profile', params: { id: this.userStore.user.id } })
                 })
                 .catch(error => {
                     console.log("error", error);

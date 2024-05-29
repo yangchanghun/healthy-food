@@ -26,7 +26,6 @@ import axios from 'axios'
 export default {
     props: {
         user: Object,
-        posts: Array
     },
 
     data() {
@@ -59,10 +58,11 @@ export default {
                 .then(response => {
                     console.log('data', response.data)
 
-                    this.posts.unshift(response.data)
                     this.body = ''
                     this.$refs.file.value = null
                     this.url = null
+                    window.location.reload()
+
                 })
                 .catch(error => {
                     console.log('error', error)
