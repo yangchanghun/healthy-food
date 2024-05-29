@@ -4,7 +4,7 @@
         <div class="max-w-7xl mx-auto">
             <div class="flex items-center justify-between">
                 <div class="menu-left">
-                    <a href="#" class="text-xl">Healthy Food</a>
+                    <RouterLink to="/home" class="text-x1">Healthy Food</RouterLink>
                 </div>
 
                 <div class="menu-center flex space-x-12">
@@ -35,25 +35,29 @@
 
                 <div class="menu-right">
 
-
                     <template v-if="userStore.user.isAuthenticated">
-                        <div>
-                            <ModalView v-if="isModalViewed" @close-modal="isModalViewed = false">
-                                <FeedForm 
-                                    :user="user"
-                                />
-                            </ModalView>
-                            <button @click="isModalViewed = true">Open Modal</button>
+                        <div class="flex items-center space-x-4">
+                            <div>
+                                <ModalView v-if="isModalViewed" @close-modal="isModalViewed = false">
+                                    <FeedForm :user="user" />
+                                </ModalView>
+                                <button @click="isModalViewed = true" class="p-2 rounded-full bg-gray-200 hover:bg-gray-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <RouterLink :to="{name: 'profile', params:{'id': userStore.user.id}}">
+                                <img :src="userStore.user.user_image" class="w-11 rounded-full">
+                            </RouterLink>
                         </div>
-                        <RouterLink :to="{name: 'profile', params:{'id': userStore.user.id}}">
-                            <img :src="userStore.user.user_image" class="w-11 rounded-full">
-                        </RouterLink>
                     </template>
 
                     <template v-else>
                         <RouterLink to="/login" class="mr-4 py-4 px-6 bg-gray-600 text-white rounded-lg">Log in</RouterLink>
                         <RouterLink to="/signup" class="py-4 px-6 bg-purple-600 text-white rounded-lg">Sign up</RouterLink>
                     </template>
+
                 </div>
 
             </div>
@@ -75,6 +79,7 @@
     import { useUserStore } from '@/stores/user'
     import FeedForm from '@/components/FeedForm.vue';
     import ModalView from '@/components/ModalView.vue';
+import { RouterLink } from 'vue-router';
 
     export default {
         setup() {
