@@ -4,7 +4,7 @@
         <div class="max-w-7xl mx-auto">
             <div class="flex items-center justify-between">
                 <div class="menu-left">
-                    <RouterLink to="/home" class="text-x1">Healthy Food</RouterLink>
+                    <RouterLink :to="{ name: 'home' }" class="text-x1">Healthy Food</RouterLink>
                 </div>
 
                 <div class="menu-center flex space-x-12">

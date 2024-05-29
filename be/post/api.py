@@ -5,7 +5,7 @@ from django.db.models import Count
 from account.models import User
 from account.serializers import UserSerializer
 from .serializers import PostSerializer, PostDetailSerializer, CommentSerializer, TrendSerializer
-from .models import Post, Like, Comment, Trend
+from .models import Post, Like, Comment, Trend, PostAttachment
 from .forms import PostForm, AttachmentForm
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -51,24 +51,23 @@ def post_list_profile(request, id):
 @api_view(['POST'])
 def post_create(request):
     form = PostForm(request.POST)
-    attachment_form = AttachmentForm(request.POST, request.FILES)
-    
-    if attachment_form.is_valid():
-        attachment = attachment_form.save(commit=False)
-        attachment.created_by = request.user
-        attachment.save()
-    
-    if form.is_valid() and attachment_form.is_valid():
+    attachments = []
+
+    if form.is_valid():
         post = form.save(commit=False)
         post.created_by = request.user
         post.save()
-        post.attachments.add(attachment)
-        
-        serializer = PostSerializer(post)
 
+        for file in request.FILES.getlist('images'):
+            attachment = PostAttachment(image=file, post=post)
+            attachment.save()
+            attachments.append(attachment)
+
+        post.save()
+        serializer = PostSerializer(post)
         return JsonResponse(serializer.data, safe=False)
     else:
-        return JsonResponse({'error': 'add somehting here later!...'})
+        return JsonResponse({'error': form.errors})
     
 @api_view(['POST'])
 def post_like(request, pk):   
