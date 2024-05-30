@@ -6,7 +6,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import axios from 'axios'
-
+import 'swiper/swiper-bundle.css';
 import './assets/main.css'
 
 // production 단계에서 여기

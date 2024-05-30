@@ -36,12 +36,12 @@
         </div>
     </div>
     
-    <!-- <div v-for="image in post.attachments" v-bind:key="image.id">
-        <img :src="attachment.get_image" class="w-[40px] rounded-full">
-    </div> -->
-    <template v-if="post.attachments.length">
-        <img v-for="image in post.attachments" v-bind:key="image.id" :src="image.get_image" class="w-full mb-4 rounded-xl">
-    </template>
+
+    <swiper :navigation="true" :pagination="{ clickable: true }">
+        <swiper-slide v-for="image in post.attachments" :key="image.id">
+            <img :src="image.get_image" class="w-full mb-4 rounded-xl">
+        </swiper-slide>
+    </swiper>
 
     <p>{{ post.body }}</p>
 
@@ -75,8 +75,14 @@
 import axios from 'axios'
 import { useUserStore } from '@/stores/user'
 import { useToastStore } from '@/stores/toast'
+import { Swiper, SwiperSlide } from 'swiper/vue';
+
 
 export default {
+    components: {
+           Swiper,
+           SwiperSlide
+       },
     props: {
         post: Object
     },
@@ -164,7 +170,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .modal-wrap {
   position: fixed;
   left: 0;
@@ -172,8 +178,8 @@ export default {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.4);
+  z-index: 1000; 
 }
-/* modal or popup */
 .modal-container {
   position: relative;
   top: 50%;
@@ -184,5 +190,6 @@ export default {
   border-radius: 10px;
   padding: 20px;
   box-sizing: border-box;
+  z-index: 1001; 
 }
 </style>

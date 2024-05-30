@@ -20,6 +20,7 @@
     position: fixed;
     left: 0;
     top: 0;
+    z-index: 1000; 
   }
   .overlay {
     opacity: 0.5;
@@ -33,7 +34,7 @@
     padding: 20px;
     background-color: white;
     min-height: 500px;
-    z-index: 10;
+    z-index: 1001;
     opacity: 1;
   }
 </style>

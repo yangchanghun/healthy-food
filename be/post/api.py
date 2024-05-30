@@ -50,6 +50,9 @@ def post_list_profile(request, id):
 
 @api_view(['POST'])
 def post_create(request):
+    if not request.FILES.getlist('images'):
+        return JsonResponse({'error': '이미지 1개 이상 필요합니다'}, status=400)
+    
     form = PostForm(request.POST)
     attachments = []
 
