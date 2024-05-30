@@ -31,7 +31,6 @@
         </div>
 
         <div class="main-right col-span-1 space-y-4">
-            <PeopleYouMayKnow />
 
             <Trends />
         </div>
@@ -40,7 +39,6 @@
 
 <script>
 import axios from 'axios'
-import PeopleYouMayKnow from '../components/PeopleYouMayKnow.vue'
 import Trends from '../components/Trends.vue'
 import FeedItem from '../components/FeedItem.vue'
 import CommentItem from '../components/CommentItem.vue'
@@ -49,7 +47,6 @@ export default {
     name: 'PostView',
 
     components: {
-        PeopleYouMayKnow,
         Trends,
         FeedItem,
         CommentItem

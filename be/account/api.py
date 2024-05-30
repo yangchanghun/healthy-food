@@ -1,6 +1,7 @@
 from django.http import JsonResponse
-
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import SignupForm, ProfileForm
 from .models import User
@@ -17,8 +18,8 @@ def me(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 @authentication_classes([])
-@permission_classes([])
 def signup(request):
     data = request.data
     message = 'success'
@@ -41,6 +42,7 @@ def signup(request):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def send_follow(request, pk):
     me = request.user
     you = User.objects.get(pk=pk)
@@ -54,6 +56,7 @@ def send_follow(request, pk):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def check_follow(request, pk):
     me = request.user
     you = User.objects.get(pk=pk)
@@ -64,6 +67,7 @@ def check_follow(request, pk):
         return JsonResponse({'isFollowing': False})
     
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def editprofile(request):
     user = request.user
     name = request.data.get('name')
@@ -82,6 +86,7 @@ def editprofile(request):
         return JsonResponse({'message': 'information updated', 'user': serializer.data})
     
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def editpassword(request):
     user = request.user
     

@@ -3,8 +3,12 @@
        <div class="max-w-7xl mx-auto grid grid-cols-4 gap-4 ">
             <div class="p-4 bg-white border border-gray-200 text-center rounded-lg">
                 <img :src="user.get_userimage" class="mb-6 rounded-full">
+
+                <p>
+                    <strong>{{ user.name }}</strong>
+                    <span v-if="user.is_seller">✔️</span>
+                </p>
                 
-                <p><strong>{{ user.name }}</strong></p>
 
                 <div class="mt-6 flex space-x-8 justify-around">
                     <p class="text-xs text-gray-500"> {{ user.followers_count }} followers</p>
@@ -86,7 +90,6 @@ input[type="file"] {
 </style>
 <script>
 import axios from 'axios'
-import PeopleYouMayKnow from '../components/PeopleYouMayKnow.vue'
 import Trends from '../components/Trends.vue'
 import FeedForm from '../components/FeedForm.vue'
 import { useUserStore } from '@/stores/user'
@@ -108,7 +111,6 @@ export default {
     },
 
     components: {
-        PeopleYouMayKnow,
         Trends,
         FeedForm,
         FeedListItem

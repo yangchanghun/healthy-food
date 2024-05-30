@@ -22,10 +22,6 @@
 import axios from 'axios'
 
 export default {
-    props: {
-        user: Object,
-    },
-
     data() {
         return {
             body: '',

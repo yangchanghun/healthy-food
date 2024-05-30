@@ -1,10 +1,24 @@
 import uuid
-
 from django.db import models
 from django.utils.timesince import timesince
 from django.conf import settings
 
 from account.models import User
+
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    def __str__(self):
+        return self.name
+
+class Product(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
+    price = models.IntegerField()
+    name = models.CharField(max_length=100)
+    specific = models.CharField(max_length=100)
+    
+    def __str__(self):
+        return self.name
+
 
 class Like(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -13,6 +27,11 @@ class Like(models.Model):
 
 class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    CONTENT_TYPES = {
+        'post': '게시글',
+        'review': '리뷰',
+        'product': '상품',
+    }
     body = models.TextField(blank=True, null=True)
     
     likes = models.ManyToManyField(Like, blank=True)
@@ -20,6 +39,10 @@ class Post(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, related_name='posts', on_delete=models.CASCADE)
+
+    content_type = models.CharField(max_length=10, choices=CONTENT_TYPES, default='post')
+    product = models.ForeignKey(Product, null=True, blank=True, on_delete=models.SET_NULL, related_name='posts')
+
 
     class Meta:
         ordering = ('-created_at',)

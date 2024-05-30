@@ -1,18 +1,17 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import Count
-
+from rest_framework.permissions import IsAuthenticated
 from account.models import User
 from account.serializers import UserSerializer
 from .serializers import PostSerializer, PostDetailSerializer, CommentSerializer, TrendSerializer
-from .models import Post, Like, Comment, Trend, PostAttachment
-from .forms import PostForm, AttachmentForm
-
+from .models import Post, Like, Comment, Trend, PostAttachment, Category, Product
+from .forms import PostForm
+from account.permissions import IsSeller
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
 
 @api_view(['GET'])
-# @permission_classes([])
 def post_list(request):
     posts = Post.objects.all()
     
@@ -49,6 +48,7 @@ def post_list_profile(request, id):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def post_create(request):
     if not request.FILES.getlist('images'):
         return JsonResponse({'error': '이미지 1개 이상 필요합니다'}, status=400)
@@ -66,13 +66,49 @@ def post_create(request):
             attachment.save()
             attachments.append(attachment)
 
-        post.save()
         serializer = PostSerializer(post)
         return JsonResponse(serializer.data, safe=False)
     else:
         return JsonResponse({'error': form.errors})
     
 @api_view(['POST'])
+@permission_classes([IsSeller])
+def create_product(request):
+    if not request.FILES.getlist('images'):
+        return JsonResponse({'error': '이미지 1개 이상 필요합니다'}, status=400)
+    
+    category_id = request.POST.get('category_id')
+    price = request.POST.get('price')
+    name = request.POST.get('name')
+    specific = request.POST.get('specific')
+    category = Category.objects.get(id=category_id)
+
+    if not all([category_id, price, name, specific]):
+        return JsonResponse({'error': '모든 제품 필드를 입력해야 합니다'}, status=400)
+    
+    product = Product(category=category, price=price, name=name, specific=specific)
+    product.save()
+
+    post = Post(
+        body=request.POST.get('body', ''),
+        created_by=request.user,
+        content_type='product',
+        product=product
+    )
+    post.save()
+
+    attachments = []
+    for file in request.FILES.getlist('images'):
+        attachment = PostAttachment(image=file, post=post)
+        attachment.save()
+        attachments.append(attachment)
+
+    serializer = PostSerializer(post)
+    return JsonResponse(serializer.data, safe=False)
+    
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def post_like(request, pk):   
     post = Post.objects.get(pk=pk)
 
@@ -96,6 +132,7 @@ def post_like(request, pk):
     
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def check_liked(request, pk):
     post = Post.objects.get(pk=pk)    
     me = request.user
@@ -104,6 +141,7 @@ def check_liked(request, pk):
     
     
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def post_create_comment(request, pk):
     comment = Comment.objects.create(body=request.data.get('body'), created_by=request.user, post=Post.objects.get(pk=pk))
     serializer = CommentSerializer(comment)
@@ -112,6 +150,7 @@ def post_create_comment(request, pk):
 
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
 def post_delete(request, pk):
     post = Post.objects.filter(created_by=request.user).get(pk=pk)
     post.delete()
@@ -123,3 +162,5 @@ def get_trends(request):
     serializer = TrendSerializer(Trend.objects.all(), many=True)
 
     return JsonResponse(serializer.data, safe=False)
+
+

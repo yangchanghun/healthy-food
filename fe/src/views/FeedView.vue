@@ -12,7 +12,6 @@
         </div>
 
         <div class="main-right col-span-1 space-y-4">
-            <PeopleYouMayKnow />
 
             <Trends />
         </div>
@@ -21,7 +20,6 @@
 
 <script>
 import axios from 'axios'
-import PeopleYouMayKnow from '../components/PeopleYouMayKnow.vue'
 import Trends from '../components/Trends.vue'
 import FeedListItem from '../components/FeedListItem.vue'
 
@@ -29,7 +27,6 @@ export default {
     name: 'FeedView',
 
     components: {
-        PeopleYouMayKnow,
         Trends,
         FeedListItem,
     },
