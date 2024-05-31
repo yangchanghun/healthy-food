@@ -1,8 +1,12 @@
 from rest_framework import serializers
 
 from account.serializers import UserSerializer
+from .models import Post, Comment, Trend, PostAttachment, Product
 
-from .models import Post, Comment, Trend, PostAttachment
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ('id', 'name', 'price', 'specific',)
 
 
 class PostAttachmentSerializer(serializers.ModelSerializer):
@@ -15,10 +19,12 @@ class PostAttachmentSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
     attachments = PostAttachmentSerializer(read_only=True, many=True)
+    product = ProductSerializer(read_only=True, required=False)
+
 
     class Meta:
         model = Post
-        fields = ('id', 'body', 'likes_count', 'created_by', 'created_at_formatted', 'attachments', 'content_type')
+        fields = ('id', 'body', 'likes_count', 'created_by', 'created_at_formatted', 'attachments', 'content_type', 'product')
 
 # 댓글
 class CommentSerializer(serializers.ModelSerializer):
@@ -44,3 +50,4 @@ class TrendSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trend
         fields = ('id', 'hashtag', 'occurences',)
+        

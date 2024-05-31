@@ -8,6 +8,21 @@
                     <strong>{{ user.name }}</strong>
                     <span v-if="user.is_seller">✔️</span>
                 </p>
+
+                <template v-if="userStore.user.isAuthenticated && user.is_seller">
+                        <div class="flex items-center space-x-4">
+                            <div>
+                                <ModalView v-if="isModalViewed" @close-modal="isModalViewed = false">
+                                    <ProductForm />
+                                </ModalView>
+                                <button @click="isModalViewed = true" class="p-2 rounded-full bg-gray-200 hover:bg-gray-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                </template>
                 
 
                 <div class="mt-6 flex space-x-8 justify-around">
@@ -91,9 +106,10 @@ input[type="file"] {
 <script>
 import axios from 'axios'
 import Trends from '../components/Trends.vue'
-import FeedForm from '../components/FeedForm.vue'
 import { useUserStore } from '@/stores/user'
 import FeedListItem from '../components/FeedListItem.vue'
+import ModalView from '../components/ModalView.vue'
+import ProductForm from '../components/ProductForm.vue'
 
 export default {
     name: 'FeedView',
@@ -112,8 +128,9 @@ export default {
 
     components: {
         Trends,
-        FeedForm,
-        FeedListItem
+        FeedListItem,
+        ModalView,
+        ProductForm,
     },
 
     data() {
@@ -125,6 +142,8 @@ export default {
             body: '',
             url: null,
             isFollowing: false,
+            isModalViewed: false,
+
         }
     },
 
