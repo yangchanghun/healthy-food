@@ -45,6 +45,12 @@
 
     <p>{{ post.body }}</p>
 
+    <div v-if="post.content_type === 'product'" class="mt-4">
+        <p class="text-gray-700 text-sm"><strong>상품 이름:</strong> {{ post.product.name }}</p>
+        <p class="text-gray-700 text-sm"><strong>상품 설명:</strong> {{ post.product.specific }}</p>
+        <p class="text-gray-700 text-sm"><strong>상품 가격:</strong> {{ post.product.price }}</p>
+    </div>
+
     <div class="my-6 flex justify-between">
         <div class="flex space-x-6">
             <div class="flex items-center space-x-2" @click="likePost(post.id)">

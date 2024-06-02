@@ -19,12 +19,10 @@ class PostAttachmentSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
     attachments = PostAttachmentSerializer(read_only=True, many=True)
-    product = ProductSerializer(read_only=True, required=False)
-
 
     class Meta:
         model = Post
-        fields = ('id', 'body', 'likes_count', 'created_by', 'created_at_formatted', 'attachments', 'content_type', 'product')
+        fields = ('id', 'body', 'likes_count', 'created_by', 'created_at_formatted', 'attachments', 'content_type')
 
 # 댓글
 class CommentSerializer(serializers.ModelSerializer):
@@ -40,10 +38,11 @@ class PostDetailSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(read_only=True, many=True)
     comments_count = serializers.IntegerField(read_only=True) 
     attachments = PostAttachmentSerializer(read_only=True, many=True)
+    product = ProductSerializer(read_only=True, required=False)
 
     class Meta:
         model = Post
-        fields = ('id', 'body', 'likes_count', 'created_by', 'created_at_formatted', 'comments', 'comments_count', 'attachments')
+        fields = ('id', 'body', 'likes_count', 'created_by', 'created_at_formatted', 'comments', 'comments_count', 'attachments', 'content_type', 'product')
         
 # 우측 trend
 class TrendSerializer(serializers.ModelSerializer):
