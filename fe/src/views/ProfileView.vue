@@ -63,6 +63,21 @@
                         Edit profile
                     </RouterLink>
 
+                    <div v-if="!user.is_seller" class="mt-6">
+                        <input 
+                            v-model="business_number" 
+                            type="text" 
+                            placeholder="사업자 번호" 
+                            class="inline-block py-4 px-3 bg-gray-100 text-xs text-black rounded-lg"
+                        />
+                        <button 
+                            class="inline-block py-4 px-3 bg-green-600 text-xs text-white rounded-lg" 
+                            @click="registerAsSeller"
+                        >
+                            Register as Seller
+                        </button>
+                    </div>
+
                 </div>
 
 
@@ -143,6 +158,7 @@ export default {
             url: null,
             isFollowing: false,
             isModalViewed: false,
+            business_number: '',
 
         }
     },
@@ -162,20 +178,34 @@ export default {
     },
 
     methods: {
+        registerAsSeller() {
+            axios
+                .post(`/api/seller/register/`, {
+                    business_number: this.business_number
+                })
+                .then(response => {
+                    console.log('data', response.data)
+                    this.$router.go();
+                })
+                .catch(error => {
+                    console.log('error', error)
+                })
+        },
         
         deletePost(id) {
             this.posts = this.posts.filter(post => post.id !== id)
         },
         // 사용자가 현재 페이지의 프로필을 팔로우하고 있는지 확인하는 API 호출
         checkFollowStatus() {
-        axios.post(`/api/follow/${this.$route.params.id}/status/`)
-            .then(response => {
-                this.isFollowing = response.data.isFollowing;
-            })
-            .catch(error => {
-                console.error('Follow status check error', error);
-            });
-        },
+            axios
+                .get(`/api/follow/${this.$route.params.id}/status/`)
+                .then(response => {
+                    this.isFollowing = response.data.isFollowing;
+                })
+                .catch(error => {
+                    console.error('Follow status check error', error);
+                });
+            },
 
         sendFollow() {
             axios
