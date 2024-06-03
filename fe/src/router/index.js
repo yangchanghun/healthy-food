@@ -9,6 +9,7 @@ import PostView from '../views/PostView.vue'
 import TrendView from '../views/TrendView.vue'
 import EditProfileView from '../views/EditProfileView.vue'
 import EditPasswordView from '../views/EditPasswordView.vue'
+import OrderPage from '../views/OrderPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -62,6 +63,11 @@ const router = createRouter({
       path: '/profile/edit/password',
       name: 'editpassword',
       component: EditPasswordView
+    },
+    {
+      path: '/order',
+      name: 'OrderPage',
+      component: OrderPage
     },
     {
       path: '/about',

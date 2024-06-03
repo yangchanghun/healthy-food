@@ -40,7 +40,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 6h11L17 13M9 21h6M9 21a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm6 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
                                 </svg>
                             </button>
-                            <ShoppingCart v-if="isCartOpen" @close="isCartOpen = false" />
+                            <ShoppingCart :open="isCartOpen" @close-cart="isCartOpen = false" />
                         </div>
 
                     <template v-if="userStore.user.isAuthenticated">
@@ -95,8 +95,11 @@
     export default {
         setup() {
             const userStore = useUserStore()
+            const isCartOpen = ref(false)
+
             return {
                 userStore,
+                isCartOpen
 
             }
         },
@@ -104,7 +107,6 @@
         data() {    
             return {
                 isModalViewed: false,
-                isCartOpen: false,
             };
         },
 

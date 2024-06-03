@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'account',
     'post',
     'search',
+    'order',
     'widget_tweaks',
     'drf_yasg',
     'corsheaders',

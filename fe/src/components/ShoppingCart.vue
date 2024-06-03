@@ -1,6 +1,6 @@
 <template>
     <TransitionRoot as="template" :show="open">
-      <Dialog class="relative z-10" @close="open = false">
+      <Dialog class="relative z-10" @close="closeCart">
         <TransitionChild as="template" enter="ease-in-out duration-500" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in-out duration-500" leave-from="opacity-100" leave-to="opacity-0">
           <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
         </TransitionChild>
@@ -60,7 +60,10 @@
                       </div>
                       <p class="mt-0.5 text-sm text-gray-500">배송비 : 3000원</p>
                       <div class="mt-6">
-                        <a href="#" class="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700">결제</a>
+                        <RouterLink to="/order" class="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
+                        @click.native="closeCart">                    
+                        결제
+                        </RouterLink>
                       </div>
                       <div class="mt-6 flex justify-center text-center text-sm text-gray-500">
 
@@ -77,17 +80,30 @@
   </template>
 
   <script setup>
-  import { ref, onMounted, computed } from 'vue'
+  import { ref, onMounted, computed, watch } from 'vue'
   import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
   import { XMarkIcon } from '@heroicons/vue/24/outline'
-  
+  import { defineEmits } from 'vue'
+  import { RouterLink } from 'vue-router'
 
+  const props = defineProps({
+    open: Boolean
+  })
+
+  const emit = defineEmits(['close-cart']);
   const products = ref([])
-  const open = ref(true)
   onMounted(() => {
     const cart = JSON.parse(sessionStorage.getItem('cart')) || [];
     products.value = cart;
   })
+  watch(() => props.open, (newVal) => {
+    if (newVal) {
+      const cart = JSON.parse(sessionStorage.getItem('cart')) || [];
+      products.value = cart;
+    }
+  });
+
+
   function removeProduct(productId) { 
       products.value = products.value.filter(product => product.id !== productId)
       sessionStorage.setItem('cart', JSON.stringify(products.value))
@@ -99,13 +115,15 @@
       sessionStorage.setItem('cart', JSON.stringify(products.value))
     }
   }
-
   function decreaseQuantity(productId) {
     const product = products.value.find(product => product.id === productId)
     if (product && product.quantity > 1) {
       product.quantity--
       sessionStorage.setItem('cart', JSON.stringify(products.value))
     }
+  }
+  function closeCart() {
+    emit('close-cart')
   }
   const totalPrice = computed(() => {
     return products.value.reduce((sum, product) => sum + product.price * product.quantity, 0)
