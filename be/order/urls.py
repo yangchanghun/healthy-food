@@ -5,6 +5,6 @@ from . import api
 
 urlpatterns = [
     path('create/', api.create_order, name='create_order'),
-    # path('', api.order_list, name='order_list'),
+    path('history/', api.order_history, name='order_history'),
     # path('<uuid:pk>/', api.order_detail, name='order_detail'),
 ]

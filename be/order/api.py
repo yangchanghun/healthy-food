@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from .models import Order, OrderItem
 from account.models import User
 from post.models import Product
+from .serializers import OrderSerializer
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -32,3 +33,14 @@ def create_order(request):
         )
 
     return JsonResponse({'message': '주문이 완료되었습니다.'}, status=201)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def order_history(request):
+    user = request.user
+    orders = Order.objects.filter(user=user).order_by('-created_at')
+    
+    serializer = OrderSerializer(orders, many=True)
+    return JsonResponse({'orders': serializer.data}, safe=False)
+

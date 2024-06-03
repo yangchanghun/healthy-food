@@ -83,7 +83,6 @@
   import { ref, onMounted, computed, watch } from 'vue'
   import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
   import { XMarkIcon } from '@heroicons/vue/24/outline'
-  import { defineEmits } from 'vue'
   import { RouterLink } from 'vue-router'
 
   const props = defineProps({
