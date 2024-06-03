@@ -173,8 +173,14 @@ export default {
         },
         saveProductToSession(product) {
             let cart = JSON.parse(sessionStorage.getItem('cart')) || [];
-            const productWithQuantity = { ...product, quantity: this.productQuantity };
-            cart.push(productWithQuantity);
+            
+            const existingProduct = cart.find(item => item.id === product.id);
+            if (existingProduct) {
+                existingProduct.quantity += this.productQuantity;
+            } else {
+                const productWithQuantity = { ...product, quantity: this.productQuantity, imageSrc: this.post.attachments[0].get_image };
+                cart.push(productWithQuantity);
+            }
             sessionStorage.setItem('cart', JSON.stringify(cart));
             this.toastStore.showToast(3000, '상품이 장바구니에 담겼습니다.', 'bg-blue-500');
         }
