@@ -1,47 +1,125 @@
 <template>
-    <div class="order-page">
-      <h1 class="text-2xl font-bold mb-4">주문 생성</h1>
-      <div class="order-summary">
-        <p>총 금액: {{ totalPrice + 3000 }}원 (배송비 포함)</p>
-        <button @click="createOrder" class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded">주문하기</button>
+  <div class="order-page">
+    <h1 class="text-2xl font-bold mb-4">주문하기</h1>
+    <div class="order-summary">
+      <div class="user-info">
+        <div>
+          <label for="real_name" class="block text-sm font-medium text-gray-700">이름:</label>
+          <input v-model="user.real_name" :placeholder="user.real_name || '이름을 입력하세요'" id="real_name" type="text" class="input-field" />
+        </div>
+
+        <div>
+          <label for="phone_number" class="block text-sm font-medium text-gray-700">전화번호:</label>
+          <input v-model="user.phone_number" :placeholder="user.phone_number || '받는 분 연락처'" id="phone_number" type="text" class="input-field" />
+        </div>
+
+        <div>
+          <label for="address" class="block text-sm font-medium text-gray-700">주소:</label>
+          <input v-model="user.address" :placeholder="user.address || '주소'" id="address" type="text" class="input-field" />
+        </div>
+
+        <div>
+          <label for="detailed_address" class="block text-sm font-medium text-gray-700">상세 주소:</label>
+          <input v-model="user.detailed_address" :placeholder="user.detailed_address || '상세 주소'" id="detailed_address" type="text" class="input-field" />
+        </div>
       </div>
+      <div v-for="product in products" :key="product.id" class="product-item mt-4">
+        <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+          <img :src="product.imageSrc" class="h-full w-full object-cover object-center" />
+        </div>
+        <p>{{ product.specific }} - {{ product.quantity }}개</p>
+        <p>{{ product.price }}원</p>
+      </div>
+      <p class="mt-4">총 금액: {{ totalPrice + 3000 }}원 (배송비 포함)</p>
+      <button @click="createOrder" class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded">주문하기</button>
     </div>
-  </template>
-  
-  <script setup>
-  import { ref, computed } from 'vue'
-  import { useRouter } from 'vue-router'
-  
-  const products = ref(JSON.parse(sessionStorage.getItem('cart')) || [])
-  const totalPrice = computed(() => {
-    return products.value.reduce((sum, product) => sum + product.price * product.quantity, 0)
-  })
-  const router = useRouter()
-  
-  function createOrder() {
-    // 주문 생성 로직
-    const order = {
-      products: products.value,
-      totalPrice: totalPrice.value + 3000,
-      createdAt: new Date()
+  </div>
+</template>
+
+<script>
+import axios from 'axios'
+
+export default {
+  name: 'OrderPage',
+
+  data() {
+    return {
+      products: JSON.parse(sessionStorage.getItem('cart')) || [],
+      user: {
+        real_name: '',
+        phone_number: '',
+        address: '',
+        detailed_address: ''
+      }
     }
-    // 서버에 주문을 전송하는 로직을 추가하세요.
-    console.log('Order created:', order)
-    // 주문이 성공적으로 생성되면 장바구니를 비우고 홈으로 이동
-    sessionStorage.removeItem('cart')
-    router.push('/')
+  },
+
+  computed: {
+    totalPrice() {
+      return this.products.reduce((sum, product) => sum + product.price * product.quantity, 0)
+    }
+  },
+
+  mounted() {
+    this.fetchUserData()
+  },
+
+  methods: {
+    fetchUserData() {
+      axios.get('/api/me/noimg/')
+        .then(response => {
+          this.user = response.data
+        })
+        .catch(error => {
+          console.log('error', error)
+        })
+    },
+
+    createOrder() {
+      const order = {
+        products: this.products,
+        totalPrice: this.totalPrice + 3000,
+        createdAt: new Date(),
+        user: this.user
+      }
+      axios
+        .post('/api/orders/create/', {
+          order: order,
+        })
+        .then(response => {
+          console.log('data', response.data)
+          sessionStorage.removeItem('cart')
+          this.$router.push('/')
+        })
+        .catch(error => {
+          console.log('error', error)
+        })
+    }
   }
-  </script>
-  
-  <style scoped>
-  .order-page {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  .order-summary {
-    border: 1px solid #e5e7eb;
-    padding: 20px;
-    border-radius: 8px;
-  }
-  </style>
+}
+</script>
+
+<style scoped>
+.order-page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.order-summary {
+  border: 1px solid #e5e7eb;
+  padding: 20px;
+  border-radius: 8px;
+}
+.input-field {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+.product-item {
+  margin-top: 10px;
+}
+</style>

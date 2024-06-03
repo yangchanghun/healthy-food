@@ -17,3 +17,10 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_following_count(self, obj):
         return obj.following.count()
+    
+class UserSerializerNoIMG(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'name', 'email', 'is_seller', 'real_name', 'phone_number', 'address', 'detailed_address')
+
+
