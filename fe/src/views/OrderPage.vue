@@ -76,6 +76,10 @@ export default {
     },
 
     createOrder() {
+      if (this.products.length === 0) {
+        alert('장바구니에 상품이 없습니다.')
+        return
+      }
       const order = {
         products: this.products,
         totalPrice: this.totalPrice + 3000,
