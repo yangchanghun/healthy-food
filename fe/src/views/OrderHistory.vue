@@ -10,26 +10,46 @@
           <p>Product: {{ item.product.name }}</p>
           <p>Quantity: {{ item.quantity }}</p>
           <p>Price: {{ item.get_total_item_price }}원</p>
+          <div v-if="item.review">
+            <RouterLink :to="{ name: 'postview', params: { id: item.review.id } }">작성한 리뷰 보기</RouterLink>
+          </div>
+          <div v-else>
+            <div>
+              <ModalView v-if="isModalViewed[item.id]" @close-modal="isModalViewed[item.id] = false">
+                <ReviewForm :product="item.product" :orderItem="item" />
+              </ModalView>
+              <button @click="openModal(item.id)" class="p-2 rounded-full bg-gray-200 hover:bg-gray-300">
+                리뷰 작성하기
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
     <div v-else>
-      <p>No orders found.</p>
+      <p>주문 내역이 없습니다.</p>
     </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import ModalView from '../components/ModalView.vue';
+import ReviewForm from '../components/ReviewForm.vue';
 
 export default {
   data() {
     return {
-      orders: []
+      orders: [],
+      isModalViewed: {}
     };
   },
   created() {
     this.fetchOrderHistory();
+  },
+  components: {
+    ModalView,
+    ReviewForm
   },
   methods: {
     fetchOrderHistory() {
@@ -41,12 +61,15 @@ export default {
         .catch(error => {
           console.error('Error fetching order history', error);
         });
+    },
+    openModal(itemId) {
+      this.isModalViewed[itemId] = true;
     }
   }
 };
 </script>
 
-<style scoped>
+<style>
 .order-item {
   border: 1px solid #ccc;
   padding: 16px;
