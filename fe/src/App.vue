@@ -33,7 +33,15 @@
                     </RouterLink>
                 </div>
 
-                <div class="menu-right">
+                <div class="menu-right flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <button @click="isCartOpen = true" class="p-2 rounded-full hover:bg-gray-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 6h11L17 13M9 21h6M9 21a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm6 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+                                </svg>
+                            </button>
+                            <ShoppingCart :open="isCartOpen" @close-cart="isCartOpen = false" />
+                        </div>
 
                     <template v-if="userStore.user.isAuthenticated">
                         <div class="flex items-center space-x-4">
@@ -80,13 +88,19 @@
     import FeedForm from '@/components/FeedForm.vue';
     import ModalView from '@/components/ModalView.vue';
     import { RouterLink } from 'vue-router';
+    import { ref } from 'vue'
+    import ShoppingCart from './components/ShoppingCart.vue'
+
 
     export default {
         setup() {
             const userStore = useUserStore()
+            const isCartOpen = ref(false)
 
             return {
-                userStore
+                userStore,
+                isCartOpen
+
             }
         },
 
@@ -100,6 +114,8 @@
             Toast,
             FeedForm,
             ModalView,
+            ShoppingCart
+
         },
 
         beforeCreate() {

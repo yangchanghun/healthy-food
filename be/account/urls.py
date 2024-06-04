@@ -16,5 +16,6 @@ urlpatterns = [
     path('follow/<uuid:pk>/status/', api.check_follow, name='check_follow'),
     
     path('seller/register/', api.register_seller, name='register_seller'),
+    path('me/noimg/', api.me_noimg, name='me_noimg'),
 ]
 
