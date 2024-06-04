@@ -5,7 +5,7 @@
       <div v-for="order in orders" :key="order.id" class="order-item">
         <h2>Order #{{ order.id }}</h2>
         <p>Date: {{ new Date(order.created_at).toLocaleString() }}</p>
-        <p>Total: {{ order.get_total_price }}</p>
+        <p>Total: {{ order.get_total_price + 3000}}원</p>
         <div v-for="item in order.order_items" :key="item.product.id" class="order-product">
           <p>Product: {{ item.product.name }}</p>
           <p>Quantity: {{ item.quantity }}</p>

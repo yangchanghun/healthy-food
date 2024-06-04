@@ -62,7 +62,7 @@
                       <div class="mt-6">
                         <RouterLink to="/order" class="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
                         @click.native="closeCart">                    
-                        결제
+                        주문
                         </RouterLink>
                       </div>
                       <div class="mt-6 flex justify-center text-center text-sm text-gray-500">

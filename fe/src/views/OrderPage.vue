@@ -31,7 +31,7 @@
         <p>{{ product.price }}원</p>
       </div>
       <p class="mt-4">총 금액: {{ totalPrice + 3000 }}원 (배송비 포함)</p>
-      <button @click="createOrder" class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded">주문하기</button>
+      <button @click="requestPay()" class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded">결제</button>
     </div>
   </div>
 </template>
@@ -62,9 +62,42 @@ export default {
 
   mounted() {
     this.fetchUserData()
+    if (window.IMP) {
+      window.IMP.init('imp62067428')
+    }
   },
 
   methods: {
+    requestPay() {
+      const today = new Date()
+      const hours = today.getHours()
+      const minutes = today.getMinutes()
+      const seconds = today.getSeconds()
+      const milliseconds = today.getMilliseconds()
+      const makeMerchantUid = hours + minutes + seconds + milliseconds
+
+      IMP.request_pay({
+        pg: 'kakaopay',
+        merchant_uid: "IMP" + makeMerchantUid,
+        name: this.products.length > 0 ? this.products[0].specific : '상품명',
+        amount: this.totalPrice + 3000,
+        buyer_email: this.user.email,
+        buyer_name: this.user.real_name,
+        buyer_tel: this.user.phone_number,
+        buyer_addr: this.user.address,
+        buyer_postcode: '123-456'
+      }, function (rsp) { // callback
+        if (rsp.success) {
+          console.log(rsp)
+          // 결제 성공 시 주문 생성
+          this.createOrder()
+        } else {
+          console.log(rsp)
+          alert('결제에 실패했습니다. 다시 시도해주세요.')
+        }
+      }.bind(this))
+    },
+
     fetchUserData() {
       axios.get('/api/me/noimg/')
         .then(response => {
@@ -93,7 +126,7 @@ export default {
         .then(response => {
           console.log('data', response.data)
           sessionStorage.removeItem('cart')
-          this.$router.push('/')
+          this.$router.push(`/profile/${this.user.id}`)
         })
         .catch(error => {
           console.log('error', error)
