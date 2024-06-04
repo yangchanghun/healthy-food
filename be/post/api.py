@@ -9,6 +9,9 @@ from .models import Post, Like, Comment, Trend, PostAttachment, Category, Produc
 from .forms import PostForm
 from account.permissions import IsSeller
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from order.models import OrderItem
+import json
+from django.db import transaction
 
 
 @api_view(['GET'])
@@ -105,7 +108,41 @@ def create_product(request):
 
     serializer = PostSerializer(post)
     return JsonResponse(serializer.data, safe=False)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_review(request):
+
+    if not request.FILES.getlist('images'):
+        return JsonResponse({'error': '이미지 1개 이상 필요합니다'}, status=400)
     
+    body = request.POST.get('body', '')
+    product_data = json.loads(request.POST.get('product', '{}'))
+    order_item_data = json.loads(request.POST.get('orderItem', '{}'))
+
+    with transaction.atomic():
+        product = Product.objects.get(id=product_data['id'])
+        order_item = OrderItem.objects.get(id=order_item_data['id'])
+        
+        post = Post.objects.create(
+            body=body,
+            created_by=request.user,
+            content_type='review',
+            product=product
+        )
+        post.save()
+        
+        order_item.review_id = post.id
+        order_item.save()
+        
+        attachments = []
+        for file in request.FILES.getlist('images'):
+            attachment = PostAttachment(image=file, post=post)
+            attachment.save()
+            attachments.append(attachment)
+        
+        serializer = PostSerializer(post)
+        return JsonResponse(serializer.data, safe=False)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

@@ -49,6 +49,8 @@
         <p class="text-gray-700 text-sm"><strong>상품 이름:</strong> {{ post.product.name }}</p>
         <p class="text-gray-700 text-sm"><strong>상품 설명:</strong> {{ post.product.specific }}</p>
         <p class="text-gray-700 text-sm"><strong>상품 가격:</strong> {{ post.product.price }}</p>
+        <input v-model.number="productQuantity" type="number" min="1" class="mt-2 px-4 py-2 border rounded" placeholder="수량">
+        <button @click="saveProductToSession(post.product)" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded">장바구니에 담기</button>
     </div>
 
     <div class="my-6 flex justify-between">
@@ -92,9 +94,6 @@ export default {
     props: {
         post: Object
     },
-    // 부모 view에 전달
-    emits: ['deletePost'],
-
     setup() {
         const userStore = useUserStore()
         const toastStore = useToastStore()
@@ -108,7 +107,9 @@ export default {
     data() {
         return {
             isLiked: false,
-            showOptionModal: false
+            showOptionModal: false,
+            productQuantity: 1
+
         }
     },
     
@@ -169,6 +170,19 @@ export default {
             if (event.target.classList.contains('modal-wrap')) {
                 this.showOptionModal = false;
             }
+        },
+        saveProductToSession(product) {
+            let cart = JSON.parse(sessionStorage.getItem('cart')) || [];
+            
+            const existingProduct = cart.find(item => item.id === product.id);
+            if (existingProduct) {
+                existingProduct.quantity += this.productQuantity;
+            } else {
+                const productWithQuantity = { ...product, quantity: this.productQuantity, imageSrc: this.post.attachments[0].get_image };
+                cart.push(productWithQuantity);
+            }
+            sessionStorage.setItem('cart', JSON.stringify(cart));
+            this.toastStore.showToast(3000, '상품이 장바구니에 담겼습니다.', 'bg-blue-500');
         }
 
     }
