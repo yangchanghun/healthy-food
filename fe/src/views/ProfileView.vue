@@ -92,6 +92,44 @@
         </div>
 
        <div class="max-w-7xl mx-auto grid grid-cols-4 gap-4">
+            <!-- 상품 섹션 -->
+            <div v-if="user.is_seller && products.length > 0" class="col-span-4">
+                <h2 class="text-2xl font-bold mb-4">상품</h2>
+                <div class="grid grid-cols-3 gap-4">
+                    <RouterLink :to="{name:'postview', params: {id: product.id}}" 
+                        class="space-y-4" 
+                        v-for="product in products" 
+                        :key="product.id"
+                    >
+                        <FeedListItem :post="product" />
+                    </RouterLink>
+
+                </div>
+            </div>
+
+            <!-- 포스트 섹션 -->
+            <div v-if="user.is_seller && regularPosts.length > 0" class="col-span-4 mt-8">
+                <h2 class="text-2xl font-bold mb-4">{{user.name}}님의 농장이야기</h2>
+                <div class="grid grid-cols-3 gap-4">
+                    <RouterLink :to="{name:'postview', params: {id: post.id}}" 
+                        class="space-y-4" 
+                        v-for="post in regularPosts" 
+                        :key="post.id"
+                    >
+                        <FeedListItem :post="post" />
+                    </RouterLink>
+                </div>
+            </div>
+
+            <!-- 리뷰 섹션 -->
+            <div v-if="user.is_seller && reviews.length > 0" class="col-span-4 mt-8">
+                <h2 class="text-2xl font-bold mb-4">받은 리뷰</h2>
+                <div class="grid grid-cols-3 gap-4">
+                    <div v-for="review in reviews" :key="review.id" class="p-4 bg-white border border-gray-200 rounded-lg">
+                        <ReviewItem :review="review" />
+                    </div>
+                </div>
+            </div>
 
             <div class="main-center col-span-3 grid grid-cols-3 gap-4">
                 <RouterLink :to="{name:'postview', params: {id: post.id}}" 
@@ -156,6 +194,17 @@ export default {
             isModalViewed: false,
             business_number: '',
 
+        }
+    },
+    computed: {
+        products() {
+            return this.posts.filter(post => post.content_type === 'product');
+        },
+        reviews() {
+            return this.posts.filter(post => post.content_type === 'review');
+        },
+        regularPosts() {
+            return this.posts.filter(post => post.content_type === 'post');
         }
     },
 

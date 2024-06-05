@@ -58,7 +58,7 @@ export default {
     totalPrice() {
       return this.products.reduce((sum, product) => sum + product.price * product.quantity, 0)
     },
-    isFromValid(){
+    isFormValid(){
         return this.user.real_name && this.user.phone_number && this.user.address && this.user.detailed_address
     }
   },
