@@ -57,6 +57,9 @@ export default {
   computed: {
     totalPrice() {
       return this.products.reduce((sum, product) => sum + product.price * product.quantity, 0)
+    },
+    isFormValid(){
+        return this.user.real_name && this.user.phone_number && this.user.address && this.user.detailed_address
     }
   },
 
@@ -69,6 +72,10 @@ export default {
 
   methods: {
     requestPay() {
+      if (!this.isFormValid) {
+        alert('모든 필수 정보를 입력해주세요.');
+        return;
+      }
       const today = new Date()
       const hours = today.getHours()
       const minutes = today.getMinutes()
