@@ -12,7 +12,13 @@ from .serializers import OrderSerializer
 def create_order(request):
     order_data = request.data.get('order')
     user_data = order_data.get('user')
-    user = User.objects.get(email=user_data['email'])
+    
+    required_fields = ['real_name', 'phone_number', 'address', 'detailed_address']
+    for field in required_fields:
+        if not user_data.get(field):
+            return JsonResponse({'message': f'{field}이(가) 누락되었습니다.'}, status=400)
+   
+    user = User.objects.get(email=user_data['email'])     
     user.real_name = user_data.get('real_name', user.real_name)
     user.phone_number = user_data.get('phone_number', user.phone_number)
     user.address = user_data.get('address', user.address)
