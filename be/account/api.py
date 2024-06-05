@@ -5,7 +5,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import SignupForm, ProfileForm
 from .models import User
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserSerializerNoIMG
 
 @api_view(['GET'])
 def me(request):
@@ -16,6 +16,10 @@ def me(request):
         'user_image': request.user.get_userimage(),
     })
 
+@api_view(['GET'])
+def me_noimg(request):
+    serializer = UserSerializerNoIMG(request.user)
+    return JsonResponse(serializer.data)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

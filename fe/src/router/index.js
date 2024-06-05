@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import FeedView from '../views/FeedView.vue'
+import CropView from '../views/CropView.vue'
 import SignupView from '../views/SignupView.vue'
 import LoginView from '../views/LoginView.vue'
 import SearchView from '../views/SearchView.vue'
@@ -10,6 +11,8 @@ import TrendView from '../views/TrendView.vue'
 import EditProfileView from '../views/EditProfileView.vue'
 import EditPasswordView from '../views/EditPasswordView.vue'
 import SalesView from '../views/SalesView.vue'
+import OrderPage from '../views/OrderPage.vue'
+import OrderHistory from '../views/OrderHistory.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,6 +26,11 @@ const router = createRouter({
       path: '/feed',
       name: 'feed',
       component: FeedView
+    },
+    {
+      path: '/crop',
+      name: 'cop',
+      component: CropView
     },
     {
       path: '/signup',
@@ -68,6 +76,16 @@ const router = createRouter({
       path: '/seller/sales',
       name: 'sales',
       component: SalesView
+    },
+    {
+      path: '/order',
+      name: 'OrderPage',
+      component: OrderPage
+    },
+    {
+      path: '/orderhistory',
+      name: 'OrderHistory',
+      component: OrderHistory
     },
     {
       path: '/about',
