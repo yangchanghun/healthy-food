@@ -17,5 +17,6 @@ urlpatterns = [
     
     path('seller/register/', api.register_seller, name='register_seller'),
     path('seller/sales/', api.sales, name='sales'),
+    path('me/noimg/', api.me_noimg, name='me_noimg'),
 ]
 

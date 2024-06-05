@@ -20,6 +20,13 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                                     </svg>
                                 </button>
+                                <RouterLink 
+                                    class="inline-block mr-2 py-4 px-3 bg-blue-600 text-xs text-white rounded-lg" 
+                                    to="/seller/sales"
+                                    v-if="userStore.user.id === user.id"
+                                >
+                                    Sales
+                                </RouterLink>
                             </div>
                         </div>
                 </template>
@@ -61,6 +68,13 @@
                         v-if="userStore.user.id === user.id"
                     >
                         Edit profile
+                    </RouterLink>
+
+                    <RouterLink 
+                        class="inline-block mr-2 py-4 px-3 bg-blue-600 text-xs text-white rounded-lg" 
+                        to="/orderhistory"
+                    >
+                        Order history
                     </RouterLink>
 
                     <div v-if="!user.is_seller" class="mt-6">
