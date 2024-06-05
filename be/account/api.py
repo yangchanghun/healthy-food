@@ -114,3 +114,7 @@ def register_seller(request):
     user.save()
 
     return JsonResponse({'message': 'You have been registered as a seller.'})
+
+@api_view(['GET'])
+def sales(request):
+    pass
