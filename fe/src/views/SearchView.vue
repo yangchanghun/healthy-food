@@ -13,35 +13,37 @@
                 </form>
             </div>
 
-            <div 
-                class="p-4 bg-white border border-gray-200 rounded-lg grid grid-cols-4 gap-4"
-                v-if="users.length"
-            >
-                <div 
-                    class="p-4 text-center bg-gray-100 rounded-lg"
-                    v-for="user in users"
-                    v-bind:key="user.id"
-                >
-                    <img :src="user.get_userimage" class="mb-6 rounded-full">
-                
-                    <p>
-                        <strong>
-                            <RouterLink :to="{name: 'profile', params:{'id': user.id}}">{{ user.name }}</RouterLink>
-                        </strong>
-                    </p>
 
-                    <div class="mt-6 flex space-x-8 justify-around">
-                        <p class="text-xs text-gray-500">120 posts</p>
+            <div v-if="users.length || posts.length">
+                <div 
+                    class="p-4 bg-white border border-gray-200 rounded-lg grid grid-cols-4 gap-4"
+                    v-if="users.length"
+                >
+                    <div 
+                        class="p-4 text-center bg-gray-100 rounded-lg"
+                        v-for="user in users"
+                        v-bind:key="user.id"
+                    >
+                        <img :src="user.get_userimage" class="mb-6 rounded-full">
+                    
+                        <p>
+                            <strong>
+                                <RouterLink :to="{name: 'profile', params:{'id': user.id}}">{{ user.name }}</RouterLink>
+                            </strong>
+                        </p>
                     </div>
                 </div>
-            </div>
 
-            <div 
-                class="p-4 bg-white border border-gray-200 rounded-lg"
-                v-for="post in posts"
-                v-bind:key="post.id"
-            >
-                <FeedItem v-bind:post="post" />
+                <RouterLink :to="{name:'postview', params: {id: post.id}}" 
+                    class="space-y-4" 
+                    v-for="post in posts" 
+                    v-bind:key="post.id"
+                >
+                    <FeedListItem v-bind:post="post" />
+                </RouterLink>
+            </div>
+            <div v-else>
+                <p class="text-center text-gray-500">검색 결과가 없습니다.</p>
             </div>
         </div>
 
@@ -61,6 +63,7 @@
 import axios from 'axios'
 import Trends from '../components/Trends.vue'
 import FeedItem from '../components/FeedItem.vue'
+import FeedListItem from '../components/FeedListItem.vue'
 
 export default {
     name: 'SearchView',
@@ -68,6 +71,7 @@ export default {
     components: {
         Trends,
         FeedItem,
+        FeedListItem,
     },
 
     data() {
@@ -80,6 +84,9 @@ export default {
 
     methods: {
         submitForm() {
+            if(this.query.length < 1){
+                return
+            }
             console.log('submitForm', this.query)
 
             axios

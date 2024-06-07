@@ -19,7 +19,6 @@ def post_list(request):
     posts = Post.objects.all()
     
     trend = request.GET.get('trend', '')
-
     if trend:
         posts = posts.filter(body__icontains='#' + trend)
         
