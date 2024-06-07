@@ -125,26 +125,16 @@
             <div v-if="user.is_seller && reviews.length > 0" class="col-span-4 mt-8">
                 <h2 class="text-2xl font-bold mb-4">받은 리뷰</h2>
                 <div class="grid grid-cols-3 gap-4">
-                    <div v-for="review in reviews" :key="review.id" class="p-4 bg-white border border-gray-200 rounded-lg">
-                        <ReviewItem :review="review" />
-                    </div>
+                    <RouterLink :to="{name:'postview', params: {id: review.id}}" 
+                        class="space-y-4" 
+                        v-for="review in reviews" 
+                        :key="review.id"
+                    >
+                        <FeedListItem :post="review" />
+                    </RouterLink>
                 </div>
             </div>
 
-            <div class="main-center col-span-3 grid grid-cols-3 gap-4">
-                <RouterLink :to="{name:'postview', params: {id: post.id}}" 
-                    class="space-y-4" 
-                    v-for="post in posts" 
-                    v-bind:key="post.id"
-                >
-                    <FeedListItem v-bind:post="post" />
-                </RouterLink>
-            </div>
-
-            <div class="main-right col-span-1 space-y-4">
-
-                <Trends />
-            </div>
         </div>
 
         
@@ -185,6 +175,7 @@ export default {
     data() {
         return {
             posts: [],
+            reviews: [],
             user: {
                 id: ''
             },
@@ -199,9 +190,6 @@ export default {
     computed: {
         products() {
             return this.posts.filter(post => post.content_type === 'product');
-        },
-        reviews() {
-            return this.posts.filter(post => post.content_type === 'review');
         },
         regularPosts() {
             return this.posts.filter(post => post.content_type === 'post');
@@ -279,6 +267,7 @@ export default {
 
                     this.posts = response.data.posts
                     this.user = response.data.user
+                    this.reviews = response.data.reviews
                 })
                 .catch(error => {
                     console.log('error', error)

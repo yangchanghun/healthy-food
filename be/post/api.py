@@ -40,13 +40,16 @@ def post_detail(request, pk):
 def post_list_profile(request, id):
     user = User.objects.annotate(posts_count=Count('posts')).get(pk=id)
     posts = Post.objects.filter(created_by_id=id)
-
+    reviews = Post.objects.filter(product__seller_id=id, content_type='review')
+    
     posts_serializer = PostSerializer(posts, many=True)
     user_serializer = UserSerializer(user)
+    reviews_serializer = PostSerializer(reviews, many=True)
 
     return JsonResponse({
         'posts': posts_serializer.data,
-        'user': user_serializer.data
+        'user': user_serializer.data,
+        'reviews': reviews_serializer.data
     }, safe=False)
 
 
@@ -89,7 +92,7 @@ def create_product(request):
     if not all([category_id, price, name, specific]):
         return JsonResponse({'error': '모든 제품 필드를 입력해야 합니다'}, status=400)
     
-    product = Product(category=category, price=price, name=name, specific=specific)
+    product = Product(category=category, price=price, name=name, specific=specific, seller=request.user)
     product.save()
 
     post = Post(
