@@ -83,13 +83,14 @@ def create_product(request):
     if not request.FILES.getlist('images'):
         return JsonResponse({'error': '이미지 1개 이상 필요합니다'}, status=400)
     
-    category_id = request.POST.get('category_id')
+    category_name = request.POST.get('category')
     price = request.POST.get('price')
     name = request.POST.get('name')
     specific = request.POST.get('specific')
-    category = Category.objects.get(id=category_id)
+    category, _ = Category.objects.get_or_create(name=category_name)
+    
 
-    if not all([category_id, price, name, specific]):
+    if not all([category_name, price, name, specific]):
         return JsonResponse({'error': '모든 제품 필드를 입력해야 합니다'}, status=400)
     
     product = Product(category=category, price=price, name=name, specific=specific, seller=request.user)
