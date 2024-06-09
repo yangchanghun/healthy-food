@@ -23,4 +23,11 @@ class UserSerializerNoIMG(serializers.ModelSerializer):
         model = User
         fields = ('id', 'name', 'email', 'is_seller', 'real_name', 'phone_number', 'address', 'detailed_address')
 
+class MonthlySalesSerializer(serializers.Serializer):
+    month = serializers.DateTimeField(format="%Y-%m")
+    total_sales = serializers.IntegerField()
+    total_count = serializers.IntegerField()
 
+class SalesSerializer(serializers.Serializer):
+    monthly_sales = MonthlySalesSerializer(many=True)
+    total_revenue = serializers.IntegerField()
