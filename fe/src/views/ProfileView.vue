@@ -66,11 +66,12 @@
                     <RouterLink 
                         class="inline-block mr-2 py-4 px-3 bg-blue-600 text-xs text-white rounded-lg" 
                         to="/orderhistory"
+                        v-if="userStore.user.id === user.id"
                     >
                         Order history
                     </RouterLink>
 
-                    <div v-if="!user.is_seller" class="mt-6">
+                    <div v-if="!user.is_seller && userStore.user.id === user.id" class="mt-6">
                         <input 
                             v-model="business_number" 
                             type="text" 
