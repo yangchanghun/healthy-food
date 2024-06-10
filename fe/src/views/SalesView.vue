@@ -1,13 +1,18 @@
 <template>
   <main class="p-6">
     <h1 class="text-2xl font-bold mb-4">Sales Page</h1>
-    <p class="mb-6">sales: {{ sales }}</p>
-    <br><br>
+    <br>
     <div class="mb-6">
-      <label for="year-select" class="mr-2">Year:</label>
+      <label for="year-select" class="mr-2 font-bold">Year:</label>
       <select id="year-select" v-model="selectedYear">
         <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
       </select>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4">연도별 총 판매 현황</h2>
+    <div class="mb-6">
+      <p>총 판매건수: {{ totalSalesCount }}</p>
+      <p>총 판매금액: {{ totalSalesAmount }}</p>
     </div>
 
     <h2 class="text-2xl font-bold mb-4">월별 판매 현황</h2>
@@ -50,7 +55,7 @@ export default {
     return {
       chart: null,
       sales: { monthly_sales: [] },
-      selectedYear: new Date().getFullYear(), // 현재 연도로 초기 설정
+      selectedYear: new Date().getFullYear(),
       years: []
     };
   },
@@ -63,19 +68,18 @@ export default {
   computed: {
     filteredSales() {
       if (this.sales && Array.isArray(this.sales.monthly_sales)) {
-        const filteredData = this.sales.monthly_sales.filter(data => moment(data.month).year() === this.selectedYear);
-        return filteredData.length > 0 ? filteredData : []; // 판매 데이터가 없으면 빈 배열 반환
+        return this.sales.monthly_sales.filter(data => moment(data.month).year() === this.selectedYear);
       }
       return [];
+    },
+    totalSalesCount() {
+      return this.filteredSales.reduce((total, monthly) => total + monthly.total_count, 0);
+    },
+    totalSalesAmount() {
+      return this.filteredSales.reduce((total, monthly) => total + monthly.total_sales, 0);
     }
   },
   watch: {
-    sales(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.updateYears();
-        // this.updateChartData();
-      }
-    },
     selectedYear(newVal, oldVal) {
       if (newVal !== oldVal) {
         this.updateChartData();
@@ -88,6 +92,8 @@ export default {
         const response = await axios.get('api/seller/sales/');
         this.sales = response.data;
         console.log('Sales data:', this.sales);
+        this.updateYears();
+        this.updateChartData(); // Update chart data when sales data is fetched
       } catch (error) {
         console.error('Sales data fetch failed:', error);
       }
@@ -151,25 +157,63 @@ export default {
       });
     },
     updateChartData() {
-      const salesData = this.filteredSales.map(data => data.total_sales);
-      const countData = this.filteredSales.map(data => data.total_count);
-      const labels = this.filteredSales.map(data => this.formatMonth(data.month));
-      const accumulatedSales = salesData.reduce((acc, cur, i) => {
-        if (i === 0) return [cur];
-        acc.push(acc[i - 1] + cur);
-        return acc;
-      }, []);
-
-      console.log('Filtered Sales:', this.filteredSales);
-      console.log('Updating chart data:', { labels, salesData, countData, accumulatedSales });
-
       if (this.chart) {
-        this.chart.data.labels = labels;
-        this.chart.data.datasets[0].data = salesData;
-        this.chart.data.datasets[1].data = countData;
-        this.chart.data.datasets[2].data = accumulatedSales;
-        this.chart.update();
+        this.chart.destroy(); // 기존 차트를 파괴
       }
+
+      const ctx = document.getElementById('salesChart').getContext('2d');
+      this.chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: this.filteredSales.map(data => this.formatMonth(data.month)),
+          datasets: [
+            {
+              label: '판매 금액',
+              data: this.filteredSales.map(data => data.total_sales),
+              yAxisID: 'A',
+              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              borderColor: 'rgba(255, 99, 132, 1)',
+              borderWidth: 1
+            },
+            {
+              label: '판매 건수',
+              data: this.filteredSales.map(data => data.total_count),
+              yAxisID: 'B',
+              backgroundColor: 'rgba(54, 162, 235, 0.2)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1
+            },
+            {
+              label: '누적 판매 금액',
+              data: this.filteredSales.reduce((acc, cur, index) => {
+                if (index === 0) return [cur.total_sales];
+                acc.push(acc[index - 1] + cur.total_sales);
+                return acc;
+              }, []),
+              type: 'line',
+              yAxisID: 'A',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 2,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          scales: {
+            A: {
+              type: 'linear',
+              position: 'left',
+            },
+            B: {
+              type: 'linear',
+              position: 'right',
+              grid: {
+                drawOnChartArea: false,
+              },
+            }
+          }
+        }
+      });
     },
     formatMonth(dateString) {
       return moment(dateString).format('MM');
@@ -179,10 +223,6 @@ export default {
 </script>
 
 <style scoped>
-/* .chart-container {
-  display: flex;
-  justify-content: center;
-} */
 .table-container {
   overflow-x: auto;
 }
