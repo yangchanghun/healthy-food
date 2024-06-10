@@ -2,7 +2,7 @@
   <main class="p-6">
     <h1 class="text-2xl font-bold mb-4">Sales Page</h1>
     <p class="mb-6">sales: {{ sales }}</p>
-
+    <br><br>
     <div class="mb-6">
       <label for="year-select" class="mr-2">Year:</label>
       <select id="year-select" v-model="selectedYear">
@@ -10,26 +10,32 @@
       </select>
     </div>
 
-    <div class="chart-container" style="position: relative; height: 40vh; width: 80vw; margin-bottom: 20px;">
+    <h2 class="text-2xl font-bold mb-4">월별 판매 현황</h2>
+    <div class="chart-container" style="position: relative; height: 60vh; width: 80vw; margin-bottom: 20px; justify-content: center;">
+      <h2 class="text-1xl font-bold mb-4">그래프</h2>
       <canvas id="salesChart"></canvas>
     </div>
 
-    <table class="min-w-full border-collapse border border-slate-400">
-      <thead>
-        <tr class="bg-gray-100">
-          <th class="px-4 py-2 border border-slate-300">월별</th>
-          <th class="px-4 py-2 border border-slate-300">판매건수</th>
-          <th class="px-4 py-2 border border-slate-300">판매금액</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="monthly in filteredSales" :key="monthly.month" class="bg-white even:bg-gray-50">
-          <td class="px-4 py-2 border border-slate-300 text-center">{{ formatMonth(monthly.month) }}</td>
-          <td class="px-4 py-2 border border-slate-300 text-right">{{ monthly.total_count }}</td>
-          <td class="px-4 py-2 border border-slate-300 text-right">{{ monthly.total_sales }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <br>
+    <div>
+      <h2 class="text-1xl font-bold mb-4">테이블</h2>
+      <table class="min-w-full border-collapse border border-slate-400">
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="px-4 py-2 border border-slate-300">월별</th>
+            <th class="px-4 py-2 border border-slate-300">판매건수</th>
+            <th class="px-4 py-2 border border-slate-300">판매금액</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="monthly in filteredSales" :key="monthly.month" class="bg-white even:bg-gray-50">
+            <td class="px-4 py-2 border border-slate-300 text-center">{{ formatMonth(monthly.month) }}</td>
+            <td class="px-4 py-2 border border-slate-300 text-right">{{ monthly.total_count }}</td>
+            <td class="px-4 py-2 border border-slate-300 text-right">{{ monthly.total_sales }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </main>
 </template>
 
@@ -43,8 +49,8 @@ export default {
   data() {
     return {
       chart: null,
-      sales: [],
-      selectedYear: new Date().getFullYear(), // Set the current year as the default
+      sales: { monthly_sales: [] },
+      selectedYear: new Date().getFullYear(), // 현재 연도로 초기 설정
       years: []
     };
   },
@@ -56,11 +62,10 @@ export default {
   },
   computed: {
     filteredSales() {
-      // sales가 존재하고 sales.monthly_sales가 배열인지 확인
       if (this.sales && Array.isArray(this.sales.monthly_sales)) {
-        return this.sales.monthly_sales.filter(data => moment(data.month).year() === this.selectedYear);
+        const filteredData = this.sales.monthly_sales.filter(data => moment(data.month).year() === this.selectedYear);
+        return filteredData.length > 0 ? filteredData : []; // 판매 데이터가 없으면 빈 배열 반환
       }
-      // 조건에 맞지 않으면 빈 배열 반환
       return [];
     }
   },
@@ -73,7 +78,6 @@ export default {
     },
     selectedYear(newVal, oldVal) {
       if (newVal !== oldVal) {
-        this.chart = null;
         this.updateChartData();
       }
     }
@@ -96,6 +100,7 @@ export default {
     },
     createChart() {
       const ctx = document.getElementById('salesChart').getContext('2d');
+
       this.chart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -146,21 +151,19 @@ export default {
       });
     },
     updateChartData() {
-      if (!this.chart) {
-        this.createChart();
-      } else {
-        const salesData = this.filteredSales.map(data => data.total_sales);
-        const countData = this.filteredSales.map(data => data.total_count);
-        const labels = this.filteredSales.map(data => this.formatMonth(data.month));
-        const accumulatedSales = salesData.reduce((acc, cur, i) => {
-          if (i === 0) return [cur];
-          acc.push(acc[i - 1] + cur);
-          return acc;
-        }, []);
+      const salesData = this.filteredSales.map(data => data.total_sales);
+      const countData = this.filteredSales.map(data => data.total_count);
+      const labels = this.filteredSales.map(data => this.formatMonth(data.month));
+      const accumulatedSales = salesData.reduce((acc, cur, i) => {
+        if (i === 0) return [cur];
+        acc.push(acc[i - 1] + cur);
+        return acc;
+      }, []);
 
-        console.log('Filtered Sales:', this.filteredSales);
-        console.log('Updating chart data:', { labels, salesData, countData, accumulatedSales });
+      console.log('Filtered Sales:', this.filteredSales);
+      console.log('Updating chart data:', { labels, salesData, countData, accumulatedSales });
 
+      if (this.chart) {
         this.chart.data.labels = labels;
         this.chart.data.datasets[0].data = salesData;
         this.chart.data.datasets[1].data = countData;
@@ -176,6 +179,10 @@ export default {
 </script>
 
 <style scoped>
+/* .chart-container {
+  display: flex;
+  justify-content: center;
+} */
 .table-container {
   overflow-x: auto;
 }
