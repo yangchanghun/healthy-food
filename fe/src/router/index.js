@@ -10,6 +10,7 @@ import PostView from '../views/PostView.vue'
 import TrendView from '../views/TrendView.vue'
 import EditProfileView from '../views/EditProfileView.vue'
 import EditPasswordView from '../views/EditPasswordView.vue'
+import SalesView from '../views/SalesView.vue'
 import OrderPage from '../views/OrderPage.vue'
 import OrderHistory from '../views/OrderHistory.vue'
 
@@ -72,6 +73,11 @@ const router = createRouter({
       component: EditPasswordView
     },
     {
+      path: '/seller/sales',
+      name: 'sales',
+      component: SalesView
+    },
+    {
       path: '/order',
       name: 'OrderPage',
       component: OrderPage
@@ -88,7 +94,7 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue')
-    }
+    },
   ]
 })
 

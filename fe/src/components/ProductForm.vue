@@ -1,11 +1,15 @@
 <template>
     <form v-on:submit.prevent="submitForm" method="post">
         <div class="p-4">
-            <textarea v-model="body" class="p-4 w-full bg-gray-100 rounded-lg" placeholder="Body"></textarea>
-            <input v-model="category_id" type="text" placeholder="Category ID" class="p-4 w-full bg-gray-100 rounded-lg mt-2" />
-            <input v-model="price" type="text" placeholder="Price" class="p-4 w-full bg-gray-100 rounded-lg mt-2" />
-            <input v-model="name" type="text" placeholder="Product Name" class="p-4 w-full bg-gray-100 rounded-lg mt-2" />
-            <input v-model="specific" type="text" placeholder="Specific" class="p-4 w-full bg-gray-100 rounded-lg mt-2" />
+            <select v-model="category" class="p-4 w-full bg-gray-100 rounded-lg mt-2">
+                <option value="" disabled>Category</option>
+                <option value="fruit">과일</option>
+                <option value="vegetable">채소</option>
+            </select>            
+            <input v-model="price" type="text" placeholder="가격" class="p-4 w-full bg-gray-100 rounded-lg mt-2" />
+            <input v-model="name" type="text" placeholder="상품명 EX) 복숭아" class="p-4 w-full bg-gray-100 rounded-lg mt-2" />
+            <input v-model="specific" type="text" placeholder="상품 상세정보 EX) 딱딱이 복숭아 1.5kg" class="p-4 w-full bg-gray-100 rounded-lg mt-2" />
+            <textarea v-model="body" class="p-4 w-full bg-gray-100 rounded-lg mt-4" placeholder="본문 내용 EX) 복숭아는 맛있어요"></textarea>
 
             <div id="preview" v-if="urls.length">
                 <img v-for="(url, index) in urls" :key="index" :src="url" class="w-[100px] mt-3 rounded-xl" />
@@ -29,7 +33,7 @@ export default {
     data() {
         return {
             body: '',
-            category_id: '',
+            category: '',
             price: '',
             name: '',
             specific: '',
@@ -44,14 +48,14 @@ export default {
         },
         
         submitForm() {
-            console.log('submitForm', this.body, this.category_id, this.price, this.name, this.specific)
+            console.log('submitForm', this.body, this.category, this.price, this.name, this.specific)
             
             let formData = new FormData();
             Array.from(this.$refs.file.files).forEach(file => {
                 formData.append('images', file);
             });
             formData.append('body', this.body);
-            formData.append('category_id', this.category_id);
+            formData.append('category', this.category);
             formData.append('price', this.price);
             formData.append('name', this.name);
             formData.append('specific', this.specific);
@@ -66,7 +70,7 @@ export default {
                     console.log('data', response.data)
 
                     this.body = ''
-                    this.category_id = ''
+                    this.category = ''
                     this.price = ''
                     this.name = ''
                     this.specific = ''

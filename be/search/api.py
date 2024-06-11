@@ -13,7 +13,6 @@ def search(request):
     data = request.data
     query = data['query']
 
-    # 검색 결과 모두 반환 : 알수도 있는 사람으로 정렬 필요
     users = User.objects.filter(name__icontains=query)
     users_serializer = UserSerializer(users, many=True)
 

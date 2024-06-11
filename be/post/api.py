@@ -19,7 +19,6 @@ def post_list(request):
     posts = Post.objects.all()
     
     trend = request.GET.get('trend', '')
-
     if trend:
         posts = posts.filter(body__icontains='#' + trend)
         
@@ -40,13 +39,16 @@ def post_detail(request, pk):
 def post_list_profile(request, id):
     user = User.objects.annotate(posts_count=Count('posts')).get(pk=id)
     posts = Post.objects.filter(created_by_id=id)
-
+    reviews = Post.objects.filter(product__seller_id=id, content_type='review')
+    
     posts_serializer = PostSerializer(posts, many=True)
     user_serializer = UserSerializer(user)
+    reviews_serializer = PostSerializer(reviews, many=True)
 
     return JsonResponse({
         'posts': posts_serializer.data,
-        'user': user_serializer.data
+        'user': user_serializer.data,
+        'reviews': reviews_serializer.data
     }, safe=False)
 
 
@@ -80,16 +82,17 @@ def create_product(request):
     if not request.FILES.getlist('images'):
         return JsonResponse({'error': '이미지 1개 이상 필요합니다'}, status=400)
     
-    category_id = request.POST.get('category_id')
+    category_name = request.POST.get('category')
     price = request.POST.get('price')
     name = request.POST.get('name')
     specific = request.POST.get('specific')
-    category = Category.objects.get(id=category_id)
+    category, _ = Category.objects.get_or_create(name=category_name)
+    
 
-    if not all([category_id, price, name, specific]):
+    if not all([category_name, price, name, specific]):
         return JsonResponse({'error': '모든 제품 필드를 입력해야 합니다'}, status=400)
     
-    product = Product(category=category, price=price, name=name, specific=specific)
+    product = Product(category=category, price=price, name=name, specific=specific, seller=request.user)
     product.save()
 
     post = Post(
