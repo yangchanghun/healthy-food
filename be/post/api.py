@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.db.models import Count
 from rest_framework.permissions import IsAuthenticated
@@ -16,7 +16,13 @@ from django.db import transaction
 
 @api_view(['GET'])
 def post_list(request):
-    posts = Post.objects.all()
+    category_name = request.GET.get('category', 'all')
+    
+    if category_name == 'all':
+        posts = Post.objects.all()
+    else:
+        category = get_object_or_404(Category, name=category_name)
+        posts = Post.objects.filter(product__category=category)
     
     trend = request.GET.get('trend', '')
     if trend:
