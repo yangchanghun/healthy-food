@@ -9,7 +9,7 @@
                     <span v-if="user.is_seller">✔️</span>
                 </p>
 
-                <template v-if="userStore.user.isAuthenticated && user.is_seller">
+                <template v-if="userStore.user.isAuthenticated && user.is_seller && userStore.user.id === user.id">
                         <div class="flex items-center space-x-4">
                             <div>
                                 <ModalView v-if="isModalViewed" @close-modal="isModalViewed = false">
@@ -23,7 +23,6 @@
                                 <RouterLink 
                                     class="inline-block mr-2 py-4 px-3 bg-blue-600 text-xs text-white rounded-lg" 
                                     to="/seller/sales"
-                                    v-if="userStore.user.id === user.id"
                                 >
                                     Sales
                                 </RouterLink>
