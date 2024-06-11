@@ -1,12 +1,12 @@
 <template>
     <div class="max-w-7xl mx-auto grid grid-cols-4 gap-4">
+        
       <div class="main-center col-span-3 grid grid-cols-3 gap-4" ref="content">
-        <RouterLink
-          :to="{ name: 'postview', params: { id: post.id } }"
+        <RouterLink :to="{ name: 'postview', params: { id: post.id } }"
           class="space-y-4"
           v-for="post in displayedPosts"
           :key="post.id"
-        >
+       >
           <FeedListItem :post="post" />
         </RouterLink>
       </div>

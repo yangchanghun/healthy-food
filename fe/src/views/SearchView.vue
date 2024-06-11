@@ -1,5 +1,5 @@
 <template>
-    <div class="max-w-7xl mx-auto grid grid-cols-4 gap-4" ref="content">
+    <div class="max-w-7xl mx-auto grid grid-cols-4 gap-4">
         <div class="main-left col-span-3 space-y-4">
             <div class="bg-white border border-gray-200 rounded-lg">
                 <form v-on:submit.prevent="submitForm" class="p-4 flex space-x-4">  
@@ -38,7 +38,7 @@
 
             <div 
                 class="p-4 bg-white border border-gray-200 rounded-lg"
-                v-for="post in displayedPosts"
+                v-for="post in posts"
                 v-bind:key="post.id"
             >
                 <FeedItem v-bind:post="post" />
@@ -46,15 +46,21 @@
         </div>
 
         <div class="main-right col-span-1 space-y-4">
+
             <Trends />
         </div>
     </div>
 </template>
 
+<!-- 지금 : 검색 - user + post의 body 검색 결과
+개선 : 검색 - user + post body 검색  - product
+                                    - review
+                                    - post 결과 -->
+
 <script>
-import axios from 'axios';
-import Trends from '../components/Trends.vue';
-import FeedItem from '../components/FeedItem.vue';
+import axios from 'axios'
+import Trends from '../components/Trends.vue'
+import FeedItem from '../components/FeedItem.vue'
 
 export default {
     name: 'SearchView',
@@ -68,62 +74,28 @@ export default {
         return {
             query: '',
             users: [],
-            otherPosts: [], // 모든 포스트 데이터를 담을 배열
-            displayedPosts: [], // 화면에 보여줄 포스트 데이터를 담을 배열
-            loadedPostCount: 0, // 로드된 포스트의 수
-            perPage: 3,
-        };
-    },
-
-    mounted() {
-        window.addEventListener('scroll', this.handleScroll);
-    },
-
-    destroyed() {
-        // 컴포넌트 소멸 시 이벤트 리스너 제거
-        window.removeEventListener('scroll', this.handleScroll);
+            posts: []
+        }
     },
 
     methods: {
         submitForm() {
-            console.log('submitForm', this.query);
+            console.log('submitForm', this.query)
 
             axios
                 .post('/api/search/', {
-                    query: this.query,
+                    query: this.query
                 })
-                .then((response) => {
-                    console.log('response:', response.data);
+                .then(response => {
+                    console.log('response:', response.data)
 
-                    this.users = response.data.users;
-                    this.otherPosts = response.data.posts;
-                    this.loadedPostCount = 0; // 새 검색 시 초기화
-                    this.displayedPosts = [];
-                    this.loadMorePosts(); // 초기에 화면에 보여줄 포스트 로딩
+                    this.users = response.data.users
+                    this.posts = response.data.posts
                 })
-                .catch((error) => {
-                    console.log('error:', error);
-                });
-        },
-
-        loadMorePosts() {
-            const remainingPosts = this.otherPosts.slice(
-                this.loadedPostCount,
-                this.loadedPostCount + this.perPage
-            );
-            this.displayedPosts = [...this.displayedPosts, ...remainingPosts];
-            this.loadedPostCount += this.perPage;
-        },
-
-        // 스크롤 이벤트 핸들러
-        handleScroll() {
-            const contentHeight = this.$refs.content.offsetHeight;
-            const yOffset = window.scrollY;
-            const windowHeight = window.innerHeight;
-            if (yOffset + windowHeight >= contentHeight) {
-                this.loadMorePosts();
-            }
-        },
-    },
-};
+                .catch(error => {
+                    console.log('error:', error)
+                })
+        }
+    }
+}
 </script>
