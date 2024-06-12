@@ -19,6 +19,7 @@ def me(request):
         'name': request.user.name,
         'email': request.user.email,
         'user_image': request.user.get_userimage(),
+        'is_seller': request.user.is_seller,
     })
 
 @api_view(['GET'])
