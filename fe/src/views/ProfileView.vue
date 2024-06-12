@@ -127,6 +127,17 @@
                     </RouterLink>
                 </div>
             </div>
+            <div v-else-if="!user.is_seller && posts.length > 0" class="col-span-4 mt-8">
+                <div class="grid grid-cols-3 gap-4">
+                    <RouterLink :to="{name:'postview', params: {id: post.id}}" 
+                        class="space-y-4" 
+                        v-for="post in posts" 
+                        :key="post.id"
+                    >
+                        <FeedListItem :post="post" />
+                    </RouterLink>
+                </div>
+            </div>
 
             <!-- 리뷰 섹션 -->
             <div v-if="user.is_seller && reviews.length > 0" class="col-span-4 mt-8">
@@ -200,7 +211,7 @@ export default {
         },
         regularPosts() {
             return this.posts.filter(post => post.content_type === 'post');
-        }
+        },
     },
 
     mounted() {
