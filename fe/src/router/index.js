@@ -119,13 +119,10 @@ router.beforeEach((to, from, next) => {
   const requiresSeller = to.matched.some(record => record.meta.isSeller)
 
   if (requiresAuth && !userStore.user.isAuthenticated) {
-    console.log("user is authenticated:", userStore.user.isAuthenticated)
-    console.log("user is seller:", userStore.user.isSeller)
     return next({ name: 'login' })
   }
 
   if (requiresSeller && !userStore.user.isSeller) {
-    console.log("user is seller:", userStore.user.isSeller)
     return next({ name: 'home' })
   }
 
