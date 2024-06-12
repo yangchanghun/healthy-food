@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useUserStore } from '../stores/user'
 import HomeView from '../views/HomeView.vue'
 import FeedView from '../views/FeedView.vue'
 import CropView from '../views/CropView.vue'
@@ -29,7 +30,7 @@ const router = createRouter({
     },
     {
       path: '/crop',
-      name: 'cop',
+      name: 'crop',
       component: CropView
     },
     {
@@ -65,17 +66,27 @@ const router = createRouter({
     {
       path: '/profile/edit',
       name: 'editprofile',
-      component: EditProfileView
+      component: EditProfileView,
+      meta: {
+        isAuthenticated: true,
+      }
     },
     {
       path: '/profile/edit/password',
       name: 'editpassword',
-      component: EditPasswordView
+      component: EditPasswordView,
+      meta: {
+        isAuthenticated: true,
+      }
     },
     {
       path: '/seller/sales',
       name: 'sales',
-      component: SalesView
+      component: SalesView,
+      meta: {
+        isAuthenticated: true,
+        isSeller: true
+      }
     },
     {
       path: '/order',
@@ -85,7 +96,10 @@ const router = createRouter({
     {
       path: '/orderhistory',
       name: 'OrderHistory',
-      component: OrderHistory
+      component: OrderHistory,
+      meta: {
+        isAuthenticated: true,
+      }
     },
     {
       path: '/about',
@@ -96,6 +110,23 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue')
     },
   ]
+})
+
+router.beforeEach((to, from, next) => {
+  const userStore = useUserStore()
+
+  const requiresAuth = to.matched.some(record => record.meta.isAuthenticated)
+  const requiresSeller = to.matched.some(record => record.meta.isSeller)
+
+  if (requiresAuth && !userStore.user.isAuthenticated) {
+    return next({ name: 'login' })
+  }
+
+  if (requiresSeller && !userStore.user.isSeller) {
+    return next({ name: 'home' })
+  }
+
+  next()
 })
 
 export default router
