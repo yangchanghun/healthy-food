@@ -93,7 +93,7 @@ export default {
 }
 
 .faq-section {
-  flex: 1 1 calc(33.33% - 10px); /* 각 섹션을 3개씩 배치 */
+  flex: 1 1 calc(33.33% - 10px);
   box-sizing: border-box;
 }
 

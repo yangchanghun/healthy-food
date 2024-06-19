@@ -55,39 +55,18 @@ export default {
       this.newMessage = '';
       this.scrollToBottom();
 
-      // 로딩 메시지 추가
-      const loadingMessage = { sender: 'Bot', text: '...', type: 'text' };
-      this.messages.push(loadingMessage);
+      const response = await fetch('http://127.0.0.1:8000/api/chatbot/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: userMessage.text })
+      });
+
+      const data = await response.json();
+      const botMessage = { sender: 'Bot', text: data.reply, type: 'text' };
+      this.messages.push(botMessage);
       this.scrollToBottom();
-
-      try {
-        const response = await fetch('http://127.0.0.1:8000/api/chatbot/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ message: userMessage.text })
-        });
-
-        const data = await response.json();
-        const botMessage = { sender: 'Bot', text: data.reply, type: 'text' };
-
-        // 로딩 메시지를 실제 응답으로 대체
-        const index = this.messages.indexOf(loadingMessage);
-        if (index !== -1) {
-          this.messages.splice(index, 1, botMessage);
-        } else {
-          this.messages.push(botMessage);
-        }
-        this.scrollToBottom();
-      } catch (error) {
-        console.error('Error:', error);
-        // 로딩 메시지를 에러 메시지로 대체
-        const index = this.messages.indexOf(loadingMessage);
-        if (index !== -1) {
-          this.messages.splice(index, 1, { sender: 'Bot', text: '응답에 실패했습니다. 다시 시도해주세요.', type: 'text' });
-        }
-      }
     },
     async sendFAQMessage(question) {
       const userMessage = { sender: 'User', text: question, type: 'text' };
@@ -123,9 +102,7 @@ export default {
           const botMessage = { sender: 'Bot', text: answer, type: 'text' };
           this.messages.push(botMessage);
           this.scrollToBottom();
-        } else {
-          console.error('Answer not found in FAQ for question:', question);
-        }
+        } 
       } catch (error) {
         console.error('Error fetching or processing FAQ data:', error);
       }
@@ -136,7 +113,7 @@ export default {
           return item.answer;
         }
       }
-      return null; // FAQ에 해당 질문에 대한 답변이 없는 경우
+      return null; 
     },
     scrollToBottom() {
       this.$nextTick(() => {
@@ -150,7 +127,6 @@ export default {
       this.scrollToBottom();
     },
     handleEmailSent(message) {
-      // 폼 제거 및 메시지 표시
       this.messages = this.messages.filter(m => m.type !== 'form');
       this.messages.push({ sender: 'Bot', text: message || '문의사항이 접수되었습니다.', type: 'text' });
       this.scrollToBottom();

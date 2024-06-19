@@ -48,7 +48,7 @@
           file: null as File | null,
         },
         previewUrl: null as string | null,
-        isSending: false, // 이메일 전송 상태 관리 변수
+        isSending: false, //
       };
     },
     methods: {
@@ -70,7 +70,7 @@
         (this.$refs.fileInput as HTMLInputElement).click();
       },
       async submitForm() {
-        this.isSending = true; // 이메일 전송 시작
+        this.isSending = true; //
         const formData = new FormData();
         formData.append('phone_number', this.form.phone_number);
         formData.append('product_number', this.form.product_number);
@@ -89,14 +89,9 @@
           if (response.ok) {
             const data = await response.json();
             this.$emit('emailSent', data.message);
-          } else {
-            const errorData = await response.json();
-            console.error('Error sending email:', errorData);
-          }
-        } catch (error) {
-          console.error('Error:', error);
+          } 
         } finally {
-          this.isSending = false; // 이메일 전송 완료
+          this.isSending = false;
         }
       },
     },

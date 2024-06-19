@@ -37,15 +37,15 @@ export default {
 }
 .close-button {
   position: absolute;
-  top: 10px; /* Adjusted position */
-  right: 10px; /* Adjusted position */
-  z-index: 1001; /* Higher than other elements */
-  background: white; /* Background to make it more visible */
+  top: 10px; 
+  right: 10px; 
+  z-index: 1001; 
+  background: white; 
   border-radius: 50%;
-  padding: 8px; /* Added padding to increase clickable area */
+  padding: 8px; 
 }
 .close-button svg {
-  width: 24px; /* Increased size */
-  height: 24px; /* Increased size */
+  width: 24px; 
+  height: 24px; 
 }
 </style>
